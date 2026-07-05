@@ -19,17 +19,18 @@
   --bg-secondary: #111620;
   --bg-tertiary: #181E28;
   --bg-glass: rgba(17, 22, 32, 0.85);
-  --accent: #5B8DEF;
-  --accent-dim: rgba(91, 141, 239, 0.12);
-  --accent-glow: rgba(91, 141, 239, 0.25);
+  --accent: #6366F1;
+  --accent-dim: rgba(99, 102, 241, 0.12);
+  --accent-glow: rgba(99, 102, 241, 0.25);
   --accent-teal: #34D399;
   --accent-red: #F87171;
   --accent-amber: #FBBF24;
+  --accent-cyan: #22D3EE;
   --text-primary: #E8ECF1;
   --text-secondary: #94A3B8;
   --text-tertiary: #5E6A7A;
-  --border: rgba(91, 141, 239, 0.1);
-  --border-strong: rgba(91, 141, 239, 0.2);
+  --border: rgba(99, 102, 241, 0.1);
+  --border-strong: rgba(99, 102, 241, 0.2);
   --sidebar-width: 240px;
   --header-height: 60px;
   --radius: 10px;
@@ -39,6 +40,25 @@
   --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  /* section accent overrides */
+  --sec-dashboard: #6366F1;
+  --sec-jobs: #8B5CF6;
+  --sec-resumes: #06B6D4;
+  --sec-interview: #F59E0B;
+  --sec-evaluation: #10B981;
+  --sec-comparison: #EC4899;
+}
+
+html.light {
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #F1F5F9;
+  --bg-glass: rgba(255,255,255,0.9);
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+  --border: rgba(99,102,241,0.08);
+  --border-strong: rgba(99,102,241,0.15);
 }
 
 /* --- 重置 & 基础 --- */
@@ -120,7 +140,7 @@ body::after {
 .sidebar-logo .logo-icon {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, var(--accent), #A07830);
+  background: linear-gradient(135deg, var(--accent), #7C3AED);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -358,7 +378,7 @@ body::after {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), #A07830);
+  background: linear-gradient(135deg, var(--accent), #7C3AED);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -465,7 +485,7 @@ body::after {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), #A07830);
+  background: linear-gradient(135deg, var(--accent), #7C3AED);
   color: #0E1117;
   font-weight: 600;
 }
@@ -2359,11 +2379,109 @@ body::after {
 .text-muted { color: var(--text-secondary); }
 .mono { font-family: var(--font-mono); }
 .font-heading { font-family: var(--font-heading); }
+
+/* ===== Login ===== */
+.login-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-primary);
+}
+.login-card {
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 48px 40px; width: 380px; text-align: center;
+}
+.login-logo { font-size: 36px; font-weight: 700; color: var(--accent); margin-bottom: 4px; letter-spacing: 2px; }
+.login-subtitle { color: var(--text-secondary); font-size: 14px; margin-bottom: 32px; }
+.login-card input {
+  width: 100%; padding: 12px 16px; margin-bottom: 12px;
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-primary); font-size: 14px; outline: none;
+}
+.login-card input:focus { border-color: var(--accent); }
+.login-switch { margin-top: 16px; font-size: 13px; color: var(--text-tertiary); }
+.login-switch a { color: var(--accent); text-decoration: none; }
+.login-error { margin-top: 12px; padding: 8px; background: rgba(248,113,113,0.15); color: var(--accent-red); border-radius: var(--radius-sm); font-size: 13px; }
+.login-hint { margin-top: 20px; font-size: 12px; color: var(--text-tertiary); }
+
+/* ===== Notifications ===== */
+.notif-panel {
+  position: fixed; top: var(--header-height); right: 16px; z-index: 9000;
+  width: 360px; max-height: 480px; overflow-y: auto;
+  background: var(--bg-secondary); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg); box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.notif-panel-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.notif-item { padding: 14px 20px; border-bottom: 1px solid var(--border); cursor: pointer; transition: var(--transition); display:flex; gap:12px; align-items:flex-start; }
+.notif-item:hover { background: var(--bg-tertiary); }
+.notif-item.unread { border-left: 3px solid var(--accent); }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+
+/* ===== User Menu ===== */
+.user-menu {
+  position: fixed; top: var(--header-height); right: 100px; z-index: 9001;
+  background: var(--bg-secondary); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,0.3); min-width: 160px;
+}
+.user-menu-item { padding: 12px 20px; cursor: pointer; font-size: 13px; transition: var(--transition); }
+.user-menu-item:hover { background: var(--bg-tertiary); }
+
+/* ===== Help Page ===== */
+.help-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.help-card {
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; cursor: pointer; transition: var(--transition);
+}
+.help-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.help-icon { font-size: 28px; margin-bottom: 12px; }
+.help-detail { max-width: 700px; margin: 0 auto; }
+.help-back { color: var(--accent); cursor: pointer; font-size: 14px; margin-bottom: 16px; display: inline-block; }
+
+/* ===== Light mode extras ===== */
+html.light .login-overlay { background: var(--bg-primary); }
+html.light .notif-panel, html.light .user-menu { box-shadow: 0 12px 40px rgba(0,0,0,0.1); }
+
+/* ===== Account page ===== */
+.account-section { max-width: 500px; }
+.account-field { margin-bottom: 20px; }
+.account-field label { display:block; margin-bottom:6px; color:var(--text-secondary); font-size:13px; }
+.account-field input { width:100%; padding:10px 14px; background:var(--bg-tertiary); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text-primary); font-size:14px; }
+
+/* ===== Section accent colors ===== */
+.nav-item[data-page="dashboard"]:hover, .nav-item[data-page="dashboard"].active { color: var(--sec-dashboard); }
+.nav-item[data-page="jobs"]:hover, .nav-item[data-page="jobs"].active { color: var(--sec-jobs); }
+.nav-item[data-page="resumes"]:hover, .nav-item[data-page="resumes"].active { color: var(--sec-resumes); }
+.nav-item[data-page="interview"]:hover, .nav-item[data-page="interview"].active { color: var(--sec-interview); }
+.nav-item[data-page="evaluation"]:hover, .nav-item[data-page="evaluation"].active { color: var(--sec-evaluation); }
+.nav-item[data-page="comparison"]:hover, .nav-item[data-page="comparison"].active { color: var(--sec-comparison); }
+
 </style>
 </head>
 <body>
 <div class="bg-mesh"></div>
-<div class="app-layout">
+
+<!-- 登录页面 -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">AIHR</div>
+    <div class="login-subtitle">AI 智能招聘助手</div>
+    <div id="loginForm">
+      <input type="text" id="loginUser" placeholder="用户名" autocomplete="username">
+      <input type="password" id="loginPass" placeholder="密码" autocomplete="current-password">
+      <button class="btn btn-primary" onclick="doLogin()" style="width:100%">登录</button>
+      <div class="login-switch">还没有账户？<a href="#" onclick="showRegister()">立即注册</a></div>
+    </div>
+    <div id="registerForm" style="display:none">
+      <input type="text" id="regUser" placeholder="用户名（至少2位）">
+      <input type="password" id="regPass" placeholder="密码（至少4位）">
+      <button class="btn btn-primary" onclick="doRegister()" style="width:100%">注册</button>
+      <div class="login-switch">已有账户？<a href="#" onclick="showLogin()">返回登录</a></div>
+    </div>
+    <div class="login-error" id="loginError" style="display:none"></div>
+    <div class="login-hint">演示账户: admin / admin123</div>
+  </div>
+</div>
+
+<div class="app-layout" id="appLayout" style="display:none">
 
   <!-- ========== 侧边栏 ========== -->
   <aside class="sidebar">
@@ -2417,20 +2535,37 @@ body::after {
     <header class="top-header">
       <div class="header-title" id="headerTitle">工作台</div>
       <div class="header-search">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" placeholder="搜索候选人、岗位、简历...">
       </div>
       <div class="header-actions">
-        <div class="header-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          <span class="badge">3</span>
+        <div class="header-btn" id="themeToggle" onclick="toggleTheme()" title="切换亮色/暗色模式">
+          <svg id="themeIconDark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="themeIconLight" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </div>
-        <div class="header-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <div class="header-btn" id="notifyBell" onclick="toggleNotifPanel()" style="position:relative">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="badge" id="notifyBadge" style="display:none">0</span>
         </div>
-        <div class="header-avatar">陈</div>
+        <div class="header-btn" id="helpBtn" onclick="switchPage('help')" title="帮助中心">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="header-user" id="headerUser" onclick="toggleUserMenu()">
+          <div class="header-avatar" id="headerAvatar">?</div>
+          <span class="user-greeting" id="headerUsername" style="margin-left:8px;font-size:13px;color:var(--text-secondary);cursor:pointer"></span>
+        </div>
       </div>
     </header>
+    <!-- 通知面板 -->
+    <div class="notif-panel" id="notifPanel" style="display:none">
+      <div class="notif-panel-header"><strong>消息通知</strong><span id="notifCount" style="font-size:12px;color:var(--text-tertiary)"></span></div>
+      <div class="notif-list" id="notifList"><div style="padding:20px;color:var(--text-tertiary);text-align:center">加载中...</div></div>
+    </div>
+    <!-- 用户菜单 -->
+    <div class="user-menu" id="userMenu" style="display:none">
+      <div class="user-menu-item" onclick="switchPage('account')">账户设置</div>
+      <div class="user-menu-item" onclick="logout()" style="color:var(--accent-red)">退出登录</div>
+    </div>
 
     <!-- 页面容器 -->
     <div class="page-container">
@@ -3645,6 +3780,31 @@ body::after {
           </button>
         </div>
       </div>
+      <!-- ==================== 帮助中心 ==================== -->
+      <div class="page-view" id="page-help">
+        <div id="helpCards">
+          <h2 style="margin-bottom:24px;font-weight:600;">帮助中心</h2>
+          <div class="help-grid" id="helpContent"><div style="color:var(--text-tertiary)">加载中...</div></div>
+        </div>
+        <div id="helpDetail" style="display:none" class="help-detail">
+          <span class="help-back" onclick="hideHelpDetail()">← 返回帮助列表</span>
+          <h2 id="helpDetailTitle" style="margin-bottom:16px;font-weight:600;"></h2>
+          <div id="helpDetailContent" style="line-height:1.8;"></div>
+        </div>
+      </div>
+
+      <!-- ==================== 账户设置 ==================== -->
+      <div class="page-view" id="page-account">
+        <h2 style="margin-bottom:24px;font-weight:600;">账户设置</h2>
+        <div class="account-section card">
+          <div class="account-field"><label>用户名</label><input type="text" id="accUsername" disabled></div>
+          <div class="account-field"><label>邮箱</label><input type="email" id="accEmail" placeholder="待填写"></div>
+          <div class="account-field"><label>新密码（留空不修改）</label><input type="password" id="accNewPass" placeholder="输入新密码"></div>
+          <button class="btn btn-primary" onclick="updateAccount()">保存修改</button>
+          <span id="accMsg" style="margin-left:12px;font-size:13px;color:var(--accent-teal);display:none"></span>
+        </div>
+      </div>
+
     </div><!-- /page-container -->
   </div><!-- /main-area -->
 </div><!-- /app-layout -->
@@ -3742,12 +3902,9 @@ async function loadCandidates() {
 
 // 页面标题映射
 const pageTitles = {
-  dashboard: '工作台',
-  jobs: '岗位管理',
-  resumes: '简历管理',
-  interview: '面试管理',
-  evaluation: 'AI 评估',
-  comparison: '人机对比'
+  dashboard: '工作台', jobs: '岗位管理', resumes: '简历管理',
+  interview: '面试管理', evaluation: 'AI 评估', comparison: '人机对比',
+  help: '帮助中心', account: '账户设置'
 };
 
 // ===== 页面导航 =====
@@ -3764,8 +3921,9 @@ function switchPage(page) {
   document.getElementById('headerTitle').textContent = pageTitles[page] || page;
   // 触发计数动画（仅仪表盘）
   if (page === 'dashboard') animateCounters();
-  // 渲染简历表格
   if (page === 'resumes') renderResumeTable();
+  if (page === 'help') loadHelp();
+  if (page === 'account') { document.getElementById('accUsername').value = currentUser?.username || ''; }
 }
 
 // ===== 数字计数动画 =====
@@ -4145,27 +4303,131 @@ function showToast(msg) {
   setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s ease'; setTimeout(() => toast.remove(), 300); }, 2500);
 }
 
-// ===== API 调用层 =====
-const API_BASE = '/api';
+// ===== Auth =====
+let authToken = localStorage.getItem('aihr_token') || '';
+let currentUser = null;
+
+function setAuth(token) { authToken = token; localStorage.setItem('aihr_token', token); }
+function clearAuth() { authToken = ''; currentUser = null; localStorage.removeItem('aihr_token'); }
 
 async function apiCall(method, path, body) {
-  try {
-    const opts = {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-    };
-    if (body && method !== 'GET') opts.body = JSON.stringify(body);
-    const res = await fetch(API_BASE + path, opts);
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ detail: res.statusText }));
-      throw new Error(err.detail || `HTTP ${res.status}`);
-    }
-    return await res.json();
-  } catch (e) {
-    console.error('API Error:', e);
-    throw e;
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
+  if (body && method !== 'GET') opts.body = JSON.stringify(body);
+  const res = await fetch('/api' + path, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    if (res.status === 401) { clearAuth(); showLogin(); throw new Error('请先登录'); }
+    throw new Error(err.detail || `HTTP ${res.status}`);
   }
+  return await res.json();
 }
+
+async function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  try {
+    const r = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u,password:p}) });
+    if (!r.ok) { const e=await r.json(); throw new Error(e.detail); }
+    const d = await r.json();
+    setAuth(d.token); currentUser = d.user;
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('appLayout').style.display = 'flex';
+    document.getElementById('headerAvatar').textContent = d.user.username[0].toUpperCase();
+    document.getElementById('headerUsername').textContent = d.user.username;
+    loadAll();
+  } catch(e) { showLoginError(e.message); }
+}
+
+async function doRegister() {
+  const u = document.getElementById('regUser').value.trim();
+  const p = document.getElementById('regPass').value;
+  try {
+    const r = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u,password:p}) });
+    if (!r.ok) { const e=await r.json(); throw new Error(e.detail); }
+    const d = await r.json();
+    setAuth(d.token); currentUser = d.user;
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('appLayout').style.display = 'flex';
+    document.getElementById('headerAvatar').textContent = d.user.username[0].toUpperCase();
+    document.getElementById('headerUsername').textContent = d.user.username;
+    loadAll();
+  } catch(e) { showLoginError(e.message); }
+}
+
+function showLogin() { document.getElementById('loginForm').style.display=''; document.getElementById('registerForm').style.display='none'; }
+function showRegister() { document.getElementById('loginForm').style.display='none'; document.getElementById('registerForm').style.display=''; }
+function showLoginError(msg) { const e=document.getElementById('loginError'); e.textContent=msg; e.style.display=''; setTimeout(()=>e.style.display='none',4000); }
+function logout() { clearAuth(); document.getElementById('appLayout').style.display='none'; document.getElementById('loginOverlay').style.display='flex'; showLogin(); document.getElementById('userMenu').style.display='none'; }
+async function updateAccount() { const e=document.getElementById('accEmail').value; const p=document.getElementById('accNewPass').value; const m=document.getElementById('accMsg'); try { const body={}; if(e)body.email=e; if(p)body.password=p; await apiCall('POST','/auth/me',body); m.style.display='';m.textContent='已保存'; setTimeout(()=>m.style.display='none',2000); }catch(ex){ m.style.display='';m.style.color='var(--accent-red)';m.textContent=ex.message; } }
+
+// Auto-login
+(async function() {
+  if (authToken) {
+    try {
+      const r = await fetch('/api/auth/me', { headers:{'Authorization':'Bearer '+authToken} });
+      if (r.ok) {
+        currentUser = await r.json();
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('appLayout').style.display = 'flex';
+        document.getElementById('headerAvatar').textContent = currentUser.username[0].toUpperCase();
+        document.getElementById('headerUsername').textContent = currentUser.username;
+        loadAll();
+        return;
+      }
+    } catch(e) {}
+    clearAuth();
+  }
+  document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('appLayout').style.display = 'none';
+})();
+
+// ===== Theme =====
+function toggleTheme() {
+  const html = document.documentElement;
+  html.classList.toggle('light');
+  const isLight = html.classList.contains('light');
+  localStorage.setItem('aihr_theme', isLight ? 'light' : 'dark');
+  document.getElementById('themeIconDark').style.display = isLight ? 'none' : '';
+  document.getElementById('themeIconLight').style.display = isLight ? '' : 'none';
+}
+(function() { if (localStorage.getItem('aihr_theme') === 'light') { document.documentElement.classList.add('light'); document.getElementById('themeIconDark').style.display='none'; document.getElementById('themeIconLight').style.display=''; } })();
+
+// ===== Notifications =====
+async function loadNotifications() {
+  try {
+    const list = await apiCall('GET', '/notifications');
+    const cnt = await apiCall('GET', '/notifications/unread-count');
+    const el = document.getElementById('notifList');
+    el.innerHTML = list.length ? list.map(n => `<div class="notif-item ${n.is_read?'':'unread'}" onclick="markNotifRead(${n.id})"><div class="notif-dot" style="background:${n.type==='success'?'var(--accent-teal)':n.type==='warning'?'var(--accent-amber)':n.type==='error'?'var(--accent-red)':'var(--accent)'}"></div><div><strong>${n.title}</strong><div style="font-size:12px;color:var(--text-secondary)">${n.message}</div></div></div>`).join('') : '<div style="padding:20px;color:var(--text-tertiary);text-align:center">暂无通知</div>';
+    const badge = document.getElementById('notifyBadge');
+    if (cnt.count > 0) { badge.style.display=''; badge.textContent=cnt.count; } else { badge.style.display='none'; }
+  } catch(e) {}
+}
+async function markNotifRead(id) { try { await apiCall('POST', `/notifications/${id}/read`); loadNotifications(); } catch(e){} }
+function toggleNotifPanel() { const p=document.getElementById('notifPanel'); p.style.display=p.style.display==='none'?'block':'none'; document.getElementById('userMenu').style.display='none'; loadNotifications(); }
+function toggleUserMenu() { const m=document.getElementById('userMenu'); m.style.display=m.style.display==='none'?'block':'none'; document.getElementById('notifPanel').style.display='none'; }
+
+// ===== Help =====
+async function loadHelp() {
+  const articles = await apiCall('GET', '/help');
+  const container = document.getElementById('helpContent');
+  if (!container) return;
+  container.innerHTML = articles.map(a => `
+    <div class="help-card" onclick="showHelpDetail('${a.title.replace(/'/g,"\\'")}','${a.content.replace(/'/g,"\\'").replace(/\n/g,'<br>')}')">
+      <div class="help-icon">${a.icon==='rocket'?'🚀':a.icon==='file'?'📄':a.icon==='mic'?'🎤':a.icon==='brain'?'🧠':a.icon==='list'?'📋':a.icon==='users'?'👥':'📖'}</div>
+      <strong>${a.title}</strong>
+    </div>`).join('');
+}
+function showHelpDetail(title, content) {
+  document.getElementById('helpDetailTitle').textContent = title;
+  document.getElementById('helpDetailContent').innerHTML = content;
+  document.getElementById('helpDetail').style.display = '';
+  document.getElementById('helpCards').style.display = 'none';
+}
+function hideHelpDetail() { document.getElementById('helpDetail').style.display='none'; document.getElementById('helpCards').style.display=''; }
+
+function loadAll() { loadCandidates(); loadNotifications(); }
 
 async function apiUpload(file, jobId) {
   const form = new FormData();

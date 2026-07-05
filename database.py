@@ -3,7 +3,10 @@ import os
 from datetime import datetime, timezone
 from typing import Optional
 
-from sqlalchemy import Column, Integer, String, Text, Float, DateTime, JSON, ForeignKey
+import hashlib
+import secrets
+
+from sqlalchemy import Column, Integer, String, Text, Float, DateTime, JSON, ForeignKey, Boolean
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -14,6 +17,29 @@ class Base(DeclarativeBase):
 
 
 # ---- 模型 ----
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String(50), unique=True, nullable=False)
+    password_hash = Column(String(128), nullable=False)
+    email = Column(String(100), default="")
+    role = Column(String(20), default="user")    # admin / user
+    avatar_url = Column(String(200), default="")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    @staticmethod
+    def hash_password(password: str) -> str:
+        salt = secrets.token_hex(16)
+        h = hashlib.sha256((password + salt).encode()).hexdigest()
+        return f"{salt}${h}"
+
+    @staticmethod
+    def verify_password(password: str, password_hash: str) -> bool:
+        salt, h = password_hash.split("$", 1)
+        return h == hashlib.sha256((password + salt).encode()).hexdigest()
+
 
 class Candidate(Base):
     __tablename__ = "candidates"
@@ -61,6 +87,18 @@ class Resume(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    type = Column(String(30), default="info")       # info / success / warning / error
+    title = Column(String(200), default="")
+    message = Column(Text, default="")
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
 # ---- 引擎 & Session ----
 
 _db_path = os.getenv("DATABASE_PATH", "data.db")
@@ -82,7 +120,40 @@ async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    # 种子数据：仅当候选人表为空时插入
+    # 种子数据：仅当用户表为空时插入
+    async with async_session() as session:
+        from sqlalchemy import select, func
+        result = await session.execute(select(func.count()).select_from(User))
+        if result.scalar() > 0:
+            return
+
+        # 管理员用户
+        session.add(User(
+            username="admin",
+            password_hash=User.hash_password("admin123"),
+            email="admin@aihr.local",
+            role="admin",
+        ))
+
+        await session.flush()
+
+        # 种子通知
+        now = datetime.now(timezone.utc)
+        import datetime as dt
+        session.add_all([
+            Notification(user_id=1, type="info", title="欢迎使用 AIHR",
+                         message="AI 智能招聘助手已就绪。上传简历或开始面试记录来体验 AI 驱动的招聘流程。",
+                         created_at=now - dt.timedelta(hours=1)),
+            Notification(user_id=1, type="success", title="系统就绪",
+                         message="百度语音识别和 DeepSeek AI 已连接，所有功能正常运行。",
+                         created_at=now - dt.timedelta(hours=2)),
+            Notification(user_id=1, type="warning", title="简历解析提醒",
+                         message="有 2 份简历因格式问题未能完成 AI 解析，请手动检查。",
+                         created_at=now - dt.timedelta(days=1)),
+        ])
+        await session.commit()
+
+    # 种子候选人：仅当候选人表为空时插入
     async with async_session() as session:
         from sqlalchemy import select, func
         result = await session.execute(select(func.count()).select_from(Candidate))
