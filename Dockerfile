@@ -14,9 +14,8 @@ COPY . .
 
 ENV DATABASE_PATH=/app/data/data.db
 
-# 创建数据目录（SQLite 持久化点）
+# 如需持久化 SQLite，在 Railway 后台挂载 Volume 到 /app/data
 RUN mkdir -p /app/data
-VOLUME ["/app/data"]
 
 EXPOSE 8000
 
