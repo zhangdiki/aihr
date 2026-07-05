@@ -1,0 +1,4586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIHR — AI 智能招聘助手</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   AIHR MVP — Warm Professional Command Center
+   Premium recruitment assistant UI
+   ============================================ */
+
+/* --- CSS 变量 / 主题令牌 --- */
+:root {
+  --bg-primary: #0E1117;
+  --bg-secondary: #161B22;
+  --bg-tertiary: #1C2128;
+  --bg-glass: rgba(22, 27, 34, 0.7);
+  --accent-gold: #C9953C;
+  --accent-gold-dim: rgba(201, 149, 60, 0.15);
+  --accent-gold-glow: rgba(201, 149, 60, 0.35);
+  --accent-teal: #2DD4A8;
+  --accent-red: #E85D5D;
+  --accent-amber: #E5A93E;
+  --text-primary: #E6EDF3;
+  --text-secondary: #8B949E;
+  --text-tertiary: #545D68;
+  --border: rgba(201, 149, 60, 0.12);
+  --border-strong: rgba(201, 149, 60, 0.25);
+  --sidebar-width: 260px;
+  --header-height: 64px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --font-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* --- 重置 & 基础 --- */
+*, *::before, *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* --- 噪点纹理叠加层 --- */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
+/* --- 背景渐变网格 --- */
+.bg-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 600px 400px at 15% 20%, rgba(201, 149, 60, 0.06), transparent),
+    radial-gradient(ellipse 500px 500px at 80% 70%, rgba(45, 212, 168, 0.04), transparent),
+    radial-gradient(ellipse 400px 300px at 50% 50%, rgba(201, 149, 60, 0.03), transparent);
+}
+
+/* --- 滚动条 --- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(201, 149, 60, 0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(201, 149, 60, 0.35); }
+
+/* --- 布局 --- */
+.app-layout {
+  display: flex;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* === 侧边栏 === */
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.sidebar-logo {
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-logo .logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--accent-gold), #A07830);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 18px;
+  color: #0E1117;
+  letter-spacing: -0.5px;
+}
+
+.sidebar-logo .logo-text {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+
+.sidebar-logo .logo-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  overflow-y: auto;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--transition);
+  margin-bottom: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 0;
+  background: var(--accent-gold);
+  border-radius: 0 2px 2px 0;
+  transition: height var(--transition);
+}
+
+.nav-item:hover {
+  color: var(--text-primary);
+  background: var(--accent-gold-dim);
+}
+
+.nav-item.active {
+  color: var(--accent-gold);
+  background: var(--accent-gold-dim);
+}
+
+.nav-item.active::before {
+  height: 24px;
+}
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.nav-item .nav-label {
+  white-space: nowrap;
+}
+
+.sidebar-user {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-user .user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-teal));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: #0E1117;
+}
+
+.sidebar-user .user-info {
+  flex: 1;
+}
+
+.sidebar-user .user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.sidebar-user .user-role {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* === 主内容区 === */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* --- 顶部栏 --- */
+.top-header {
+  height: var(--header-height);
+  min-height: var(--header-height);
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  gap: 20px;
+  z-index: 5;
+}
+
+.header-title {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 160px;
+}
+
+.header-search {
+  flex: 1;
+  max-width: 420px;
+  position: relative;
+}
+
+.header-search input {
+  width: 100%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px 8px 40px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.header-search input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.header-search input:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px rgba(201, 149, 60, 0.1);
+}
+
+.header-search .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.header-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+  position: relative;
+}
+
+.header-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.header-btn .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  background: var(--accent-red);
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.header-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-gold), #A07830);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 13px;
+  color: #0E1117;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+/* --- 页面容器 --- */
+.page-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 28px 32px;
+  position: relative;
+}
+
+.page-view {
+  display: none;
+  animation: fadeInUp 0.35s ease forwards;
+}
+
+.page-view.active {
+  display: block;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === 通用组件 === */
+
+/* 卡片 */
+.card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: all var(--transition);
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 20px rgba(201, 149, 60, 0.06);
+}
+
+.card-glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* 状态标签 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.badge-gold {
+  background: var(--accent-gold-dim);
+  color: var(--accent-gold);
+  border: 1px solid rgba(201, 149, 60, 0.3);
+}
+
+.badge-teal {
+  background: rgba(45, 212, 168, 0.12);
+  color: var(--accent-teal);
+  border: 1px solid rgba(45, 212, 168, 0.25);
+}
+
+.badge-red {
+  background: rgba(232, 93, 93, 0.12);
+  color: var(--accent-red);
+  border: 1px solid rgba(232, 93, 93, 0.25);
+}
+
+.badge-amber {
+  background: rgba(229, 169, 62, 0.12);
+  color: var(--accent-amber);
+  border: 1px solid rgba(229, 169, 62, 0.25);
+}
+
+/* 按钮 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-gold), #A07830);
+  color: #0E1117;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 16px rgba(201, 149, 60, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--bg-tertiary);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent-gold);
+  background: var(--accent-gold-dim);
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 12px;
+}
+
+/* 分数标签 */
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.score-pass {
+  background: linear-gradient(135deg, rgba(45, 212, 168, 0.2), rgba(45, 212, 168, 0.08));
+  color: var(--accent-teal);
+  border: 1px solid rgba(45, 212, 168, 0.3);
+}
+
+.score-pending {
+  background: linear-gradient(135deg, rgba(229, 169, 62, 0.2), rgba(229, 169, 62, 0.08));
+  color: var(--accent-amber);
+  border: 1px solid rgba(229, 169, 62, 0.3);
+}
+
+.score-reject {
+  background: linear-gradient(135deg, rgba(232, 93, 93, 0.2), rgba(232, 93, 93, 0.08));
+  color: var(--accent-red);
+  border: 1px solid rgba(232, 93, 93, 0.3);
+}
+
+/* 表单元素 */
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px rgba(201, 149, 60, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+/* 技能标签 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--accent-gold-dim);
+  color: var(--accent-gold);
+  border: 1px solid rgba(201, 149, 60, 0.2);
+}
+
+/* === 页面1：工作台 === */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-gold), transparent);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.stat-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:hover::after {
+  opacity: 1;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.stat-value .stat-unit {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-left: 4px;
+}
+
+.stat-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.stat-change.positive { color: var(--accent-teal); }
+.stat-change.negative { color: var(--accent-red); }
+
+.stat-icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+
+.stat-icon.gold { background: var(--accent-gold-dim); color: var(--accent-gold); }
+.stat-icon.teal { background: rgba(45, 212, 168, 0.1); color: var(--accent-teal); }
+
+/* 管道概览 */
+.pipeline-section {
+  margin-bottom: 28px;
+}
+
+.pipeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.pipeline-header h2 {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.pipeline-bar {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  transition: all var(--transition);
+}
+
+.pipeline-bar:hover {
+  border-color: var(--border-strong);
+}
+
+.pipeline-bar .job-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.pipeline-bar .job-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.pipeline-stages {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.pipeline-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.pipeline-stage:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 55%;
+  width: 90%;
+  height: 2px;
+  background: var(--border);
+}
+
+.pipeline-stage .stage-name {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.pipeline-stage .stage-count {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--bg-primary);
+  border: 2px solid var(--border);
+  transition: all var(--transition);
+}
+
+.pipeline-stage .stage-count.has-candidates {
+  border-color: var(--accent-gold);
+  background: var(--accent-gold-dim);
+  color: var(--accent-gold);
+}
+
+/* 活动列表 + AI建议 双列 */
+.dashboard-bottom {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+
+.activity-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+}
+
+.activity-card h3 {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.activity-item:last-child { border-bottom: none; }
+
+.activity-item::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 2px;
+}
+
+.activity-item.type-score::before { background: var(--accent-teal); }
+.activity-item.type-interview::before { background: var(--accent-gold); }
+.activity-item.type-import::before { background: #7C6DDB; }
+.activity-item.type-decision::before { background: var(--accent-red); }
+
+.activity-item .activity-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-icon.score { background: rgba(45, 212, 168, 0.1); color: var(--accent-teal); }
+.activity-icon.interview { background: var(--accent-gold-dim); color: var(--accent-gold); }
+.activity-icon.import { background: rgba(124, 109, 219, 0.1); color: #7C6DDB; }
+.activity-icon.decision { background: rgba(232, 93, 93, 0.1); color: var(--accent-red); }
+
+.activity-item .activity-content {
+  flex: 1;
+}
+
+.activity-item .activity-text {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.activity-item .activity-text strong {
+  color: var(--accent-gold);
+  font-weight: 600;
+}
+
+.activity-item .activity-time {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.ai-insights-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--accent-gold);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+}
+
+.ai-insights-card h3 {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.insight-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.insight-item:last-child { border-bottom: none; }
+
+.insight-item strong {
+  color: var(--text-primary);
+}
+
+.insight-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-right: 6px;
+}
+
+.insight-tag.warning { background: rgba(229, 169, 62, 0.12); color: var(--accent-amber); }
+.insight-tag.info { background: rgba(45, 212, 168, 0.1); color: var(--accent-teal); }
+
+/* === 页面2：岗位管理 === */
+.jobs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.jobs-header h2 {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.job-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.job-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.job-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.job-card.selected {
+  border-color: var(--accent-gold);
+  background: var(--accent-gold-dim);
+}
+
+.job-card .job-main {
+  flex: 1;
+}
+
+.job-card .job-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.job-card .job-details {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.job-card .job-salary {
+  font-family: var(--font-mono);
+  color: var(--accent-gold);
+  font-weight: 500;
+}
+
+.job-card .job-counts {
+  display: flex;
+  gap: 12px;
+}
+
+.job-card .job-count-item {
+  text-align: center;
+}
+
+.job-card .job-count-item .count {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.job-card .job-count-item .label {
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+/* 看板 */
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  min-height: 400px;
+}
+
+.kanban-column {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.kanban-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.kanban-column-header .col-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.kanban-column-header .col-count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--accent-gold-dim);
+  color: var(--accent-gold);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.kanban-cards {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kanban-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  cursor: grab;
+  transition: all var(--transition);
+}
+
+.kanban-card:hover {
+  border-color: var(--accent-gold);
+  box-shadow: 0 4px 12px rgba(201, 149, 60, 0.1);
+  transform: translateY(-2px);
+}
+
+.kanban-card:active { cursor: grabbing; }
+
+.kanban-card .kc-name {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.kanban-card .kc-score {
+  margin-bottom: 8px;
+}
+
+.kanban-card .kc-skill {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.kanban-card .kc-time {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-top: 8px;
+}
+
+/* 模态框 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  width: 560px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+
+.modal-close:hover {
+  background: var(--accent-red);
+  color: white;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* === 页面3：简历管理 === */
+.resume-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.resume-top-bar .form-select,
+.resume-top-bar .form-input {
+  width: auto;
+  min-width: 160px;
+}
+
+/* 上传区域 */
+.upload-area {
+  border: 2px dashed var(--accent-gold);
+  border-radius: var(--radius);
+  padding: 48px 24px;
+  text-align: center;
+  margin-bottom: 24px;
+  background: var(--accent-gold-dim);
+  transition: all var(--transition);
+  display: none;
+}
+
+.upload-area.active { display: block; }
+.upload-area:hover { background: rgba(201, 149, 60, 0.1); }
+
+.upload-area .upload-icon {
+  margin-bottom: 16px;
+  color: var(--accent-gold);
+}
+
+.upload-area p {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.upload-area .upload-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 8px;
+}
+
+.upload-progress {
+  margin-top: 16px;
+  display: none;
+}
+
+.upload-progress.active { display: block; }
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-primary);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-teal));
+  border-radius: 2px;
+  width: 0;
+  transition: width 0.1s linear;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  font-family: var(--font-mono);
+}
+
+/* 简历表格 */
+.resume-table-wrapper {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.resume-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.resume-table thead th {
+  padding: 14px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.resume-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.resume-table tbody tr:last-child { border-bottom: none; }
+
+.resume-table tbody tr:hover {
+  background: var(--accent-gold-dim);
+}
+
+.resume-table tbody td {
+  padding: 14px 16px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.resume-table .name-cell {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.resume-table .score-cell {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.resume-table .tags-cell {
+  display: flex;
+  gap: 6px;
+}
+
+.resume-table .actions-cell {
+  display: flex;
+  gap: 6px;
+}
+
+/* 简历详情面板 */
+.detail-panel-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-strong);
+  z-index: 50;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.3);
+}
+
+.detail-panel-overlay.active {
+  transform: translateX(0);
+}
+
+.detail-panel-close {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg-secondary);
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.detail-content {
+  padding: 24px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.detail-header .detail-name {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.detail-header .detail-position {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.detail-score-ring {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.detail-score-ring svg {
+  width: 80px;
+  height: 80px;
+  transform: rotate(-90deg);
+}
+
+.detail-score-ring .ring-bg {
+  fill: none;
+  stroke: var(--bg-primary);
+  stroke-width: 6;
+}
+
+.detail-score-ring .ring-fill {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease;
+}
+
+.detail-score-ring .ring-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.detail-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.detail-info-item {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+}
+
+.detail-info-item .info-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+
+.detail-info-item .info-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.detail-section {
+  margin-bottom: 24px;
+}
+
+.detail-section h4 {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-section .skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* AI 评分详情 */
+.eval-expand {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.eval-expand-header {
+  padding: 14px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background var(--transition);
+}
+
+.eval-expand-header:hover {
+  background: var(--accent-gold-dim);
+}
+
+.eval-expand-header .eval-dim {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.eval-expand-header .eval-chevron {
+  transition: transform var(--transition);
+  color: var(--text-secondary);
+}
+
+.eval-expand.open .eval-chevron {
+  transform: rotate(180deg);
+}
+
+.eval-expand-body {
+  display: none;
+  padding: 0 16px 16px;
+}
+
+.eval-expand.open .eval-expand-body {
+  display: block;
+}
+
+.eval-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-primary);
+  border-radius: 3px;
+  margin: 8px 0 12px;
+  overflow: hidden;
+}
+
+.eval-bar .eval-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+
+/* 评分溯源 */
+.trace-expand {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.trace-header {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent-gold);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--transition);
+}
+
+.trace-header:hover { background: var(--accent-gold-dim); }
+
+.trace-body {
+  display: none;
+  padding: 0 14px 14px;
+}
+
+.trace-expand.open .trace-body { display: block; }
+
+.trace-block {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  border-left: 3px solid var(--accent-gold);
+}
+
+.trace-block .trace-label {
+  font-size: 11px;
+  color: var(--accent-gold);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.trace-block .trace-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.trace-block .trace-formula {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-teal);
+  margin-top: 6px;
+  background: var(--bg-primary);
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+/* === 页面4：面试管理 === */
+.interview-selector {
+  margin-bottom: 24px;
+}
+
+.interview-selector h2 {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.interview-guide {
+  max-width: 800px;
+}
+
+.interview-section {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.interview-section-header {
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background var(--transition);
+}
+
+.interview-section-header:hover {
+  background: var(--accent-gold-dim);
+}
+
+.interview-section-header .section-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.interview-section-header .section-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-gold-dim);
+  color: var(--accent-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.interview-section-header .section-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.interview-section-header .section-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.interview-section-header .section-progress {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--bg-primary);
+}
+
+.interview-section-body {
+  display: none;
+  padding: 0 20px 20px;
+}
+
+.interview-section.open .interview-section-body {
+  display: block;
+}
+
+.interview-section.open .section-chevron {
+  transform: rotate(180deg);
+}
+
+.section-chevron {
+  transition: transform var(--transition);
+  color: var(--text-secondary);
+}
+
+.question-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.question-card:last-child { margin-bottom: 0; }
+
+.question-card .q-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.question-card .q-num {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-gold);
+  min-width: 28px;
+}
+
+.question-card .q-text {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.question-card .q-tag {
+  margin-bottom: 12px;
+}
+
+.question-card .q-answers {
+  margin-bottom: 12px;
+}
+
+.answer-level {
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  border-left: 3px solid;
+}
+
+.answer-level.good { border-color: var(--accent-teal); }
+.answer-level.medium { border-color: var(--accent-amber); }
+.answer-level.bad { border-color: var(--accent-red); }
+
+.answer-level-header {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--transition);
+}
+
+.answer-level-header:hover { background: var(--accent-gold-dim); }
+
+.answer-level.good .answer-level-header { color: var(--accent-teal); }
+.answer-level.medium .answer-level-header { color: var(--accent-amber); }
+.answer-level.bad .answer-level-header { color: var(--accent-red); }
+
+.answer-level-body {
+  display: none;
+  padding: 0 12px 10px;
+}
+
+.answer-level.open .answer-level-body { display: block; }
+
+.answer-level-body p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.question-card .q-score {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.question-card .q-score label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.question-card .q-score select {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  outline: none;
+}
+
+.question-card .q-notes textarea {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  resize: vertical;
+  min-height: 60px;
+  outline: none;
+}
+
+.question-card .q-notes textarea:focus {
+  border-color: var(--accent-gold);
+}
+
+/* 面试笔记表单 */
+.interview-notes {
+  margin-top: 32px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.interview-notes h3 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.notes-grid .full-width { grid-column: 1 / -1; }
+
+.radio-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+
+.radio-label:hover {
+  border-color: var(--accent-gold);
+}
+
+.radio-label input[type="radio"] {
+  accent-color: var(--accent-gold);
+}
+
+.radio-label:has(input:checked) {
+  border-color: var(--accent-gold);
+  background: var(--accent-gold-dim);
+}
+
+/* === 页面5：AI评估 === */
+.eval-report {
+  max-width: 900px;
+}
+
+.eval-report-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.eval-report-header .report-info {
+  flex: 1;
+}
+
+.eval-report-header .report-name {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.eval-report-header .report-position {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.eval-report-header .report-badge {
+  margin-top: 10px;
+}
+
+.eval-score-ring-lg {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.eval-score-ring-lg svg {
+  width: 120px;
+  height: 120px;
+  transform: rotate(-90deg);
+}
+
+.eval-score-ring-lg .ring-bg {
+  fill: none;
+  stroke: var(--bg-primary);
+  stroke-width: 8;
+}
+
+.eval-score-ring-lg .ring-fill {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.5s ease;
+}
+
+.eval-score-ring-lg .ring-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.eval-score-ring-lg .ring-value .score-num {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.eval-score-ring-lg .ring-value .score-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.eval-summary-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 28px;
+  padding: 20px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--accent-gold);
+}
+
+.eval-charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.chart-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.chart-card h4 {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.chart-card canvas {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  display: block;
+}
+
+.emotion-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.emotion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.emotion-item .emotion-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.emotion-item .emotion-label {
+  color: var(--text-secondary);
+  width: 60px;
+}
+
+.emotion-item .emotion-value {
+  font-weight: 500;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.highlights-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.highlights-list li {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  padding-left: 20px;
+  position: relative;
+}
+
+.highlights-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-gold);
+}
+
+.highlights-list li strong {
+  color: var(--text-primary);
+}
+
+.highlights-list li .quote {
+  color: var(--accent-gold);
+  font-style: italic;
+}
+
+.eval-recommendation {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.eval-recommendation h3 {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.eval-recommendation .rec-text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.eval-recommendation .rec-risk {
+  padding: 12px 16px;
+  background: rgba(232, 93, 93, 0.08);
+  border: 1px solid rgba(232, 93, 93, 0.15);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--accent-red);
+}
+
+/* === 页面6：人机对比 === */
+.comparison-container {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  gap: 0;
+  margin-bottom: 28px;
+}
+
+.comparison-column {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.comparison-column h3 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.comparison-column .comp-badge {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.comparison-column .comp-bars {
+  margin-bottom: 20px;
+}
+
+.comp-bar-item {
+  margin-bottom: 12px;
+}
+
+.comp-bar-item .comp-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.comp-bar-item .comp-bar-label .label {
+  color: var(--text-secondary);
+}
+
+.comp-bar-item .comp-bar-label .value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.comp-bar {
+  height: 6px;
+  background: var(--bg-primary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.comp-bar .comp-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+
+.comparison-middle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.align-indicator {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.align-indicator.aligned {
+  background: rgba(45, 212, 168, 0.15);
+  color: var(--accent-teal);
+}
+
+.align-indicator.conflicted {
+  background: rgba(232, 93, 93, 0.15);
+  color: var(--accent-red);
+}
+
+.align-text {
+  writing-mode: vertical-rl;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 2px;
+}
+
+.align-text.aligned { color: var(--accent-teal); }
+.align-text.conflicted { color: var(--accent-red); }
+
+.comparison-notes {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-top: 12px;
+}
+
+.comparison-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  justify-content: center;
+}
+
+/* === 面试录音区域 === */
+.interview-recorder {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.interview-recorder h3 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.recorder-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.recorder-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  position: relative;
+  color: var(--text-secondary);
+}
+
+.recorder-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  box-shadow: 0 0 24px rgba(201, 149, 60, 0.2);
+}
+
+.recorder-btn.recording {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+  background: rgba(232, 93, 93, 0.1);
+  animation: recorderPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes recorderPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232, 93, 93, 0.4); }
+  50% { box-shadow: 0 0 0 16px rgba(232, 93, 93, 0); }
+}
+
+.recorder-btn.processing {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  pointer-events: none;
+}
+
+.recorder-btn svg {
+  width: 32px;
+  height: 32px;
+}
+
+.recorder-timer {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 2px;
+}
+
+.recorder-timer.recording {
+  color: var(--accent-red);
+}
+
+.recorder-status {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recorder-status .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+}
+
+.recorder-status .status-dot.recording {
+  background: var(--accent-red);
+  animation: blinkDot 0.8s ease-in-out infinite;
+}
+
+.recorder-status .status-dot.done {
+  background: var(--accent-teal);
+}
+
+@keyframes blinkDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.recorder-transcript-box {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  min-height: 120px;
+  max-height: 300px;
+  overflow-y: auto;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin-top: 16px;
+  display: none;
+}
+
+.recorder-transcript-box.active {
+  display: block;
+}
+
+.recorder-transcript-box .interim {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+.recorder-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.recorder-unsupported {
+  display: none;
+  padding: 16px;
+  background: rgba(232, 93, 93, 0.08);
+  border: 1px solid rgba(232, 93, 93, 0.2);
+  border-radius: var(--radius-sm);
+  color: var(--accent-red);
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.recorder-unsupported.active {
+  display: block;
+}
+
+.recorder-manual-input {
+  margin-top: 16px;
+}
+
+.recorder-manual-input.active {
+  display: block;
+}
+
+.recorder-manual-input textarea {
+  width: 100%;
+  min-height: 120px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  resize: vertical;
+  outline: none;
+}
+
+.recorder-manual-input textarea:focus {
+  border-color: var(--accent-gold);
+}
+
+/* 工具类 */
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+.text-gold { color: var(--accent-gold); }
+.text-teal { color: var(--accent-teal); }
+.text-red { color: var(--accent-red); }
+.text-amber { color: var(--accent-amber); }
+.text-muted { color: var(--text-secondary); }
+.mono { font-family: var(--font-mono); }
+.font-heading { font-family: var(--font-heading); }
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="app-layout">
+
+  <!-- ========== 侧边栏 ========== -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">A</div>
+      <div>
+        <div class="logo-text">AIHR</div>
+        <div class="logo-sub">Recruitment AI</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span class="nav-label">工作台</span>
+      </div>
+      <div class="nav-item" data-page="jobs" onclick="switchPage('jobs')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        <span class="nav-label">岗位管理</span>
+      </div>
+      <div class="nav-item" data-page="resumes" onclick="switchPage('resumes')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span class="nav-label">简历管理</span>
+      </div>
+      <div class="nav-item" data-page="interview" onclick="switchPage('interview')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="nav-label">面试管理</span>
+      </div>
+      <div class="nav-item" data-page="evaluation" onclick="switchPage('evaluation')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2m-3.3-6.7l-1.4 1.4M6.7 17.3l-1.4 1.4m0-13.4l1.4 1.4m10.6 10.6l1.4 1.4"/></svg>
+        <span class="nav-label">AI 评估</span>
+      </div>
+      <div class="nav-item" data-page="comparison" onclick="switchPage('comparison')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+        <span class="nav-label">人机对比</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">陈</div>
+      <div class="user-info">
+        <div class="user-name">陈总监</div>
+        <div class="user-role">技术招聘负责人</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========== 主内容区 ========== -->
+  <div class="main-area">
+    <!-- 顶部栏 -->
+    <header class="top-header">
+      <div class="header-title" id="headerTitle">工作台</div>
+      <div class="header-search">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="搜索候选人、岗位、简历...">
+      </div>
+      <div class="header-actions">
+        <div class="header-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="badge">3</span>
+        </div>
+        <div class="header-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+        <div class="header-avatar">陈</div>
+      </div>
+    </header>
+
+    <!-- 页面容器 -->
+    <div class="page-container">
+
+      <!-- ==================== 页面1：工作台 ==================== -->
+      <div class="page-view active" id="page-dashboard">
+        <!-- 统计卡片 -->
+        <div class="dashboard-stats">
+          <div class="stat-card">
+            <div class="stat-label">今日新增简历</div>
+            <div class="stat-value"><span class="counter" data-target="23">0</span></div>
+            <div class="stat-change positive">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              +12% 较昨日
+            </div>
+            <div class="stat-icon gold">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">待面试候选人</div>
+            <div class="stat-value"><span class="counter" data-target="8">0</span></div>
+            <div class="stat-change negative">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+              -2 较昨日
+            </div>
+            <div class="stat-icon teal">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">AI 评分通过率</div>
+            <div class="stat-value"><span class="counter" data-target="73">0</span><span class="stat-unit">%</span></div>
+            <div class="stat-change positive">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              +5% 较上周
+            </div>
+            <div class="stat-icon gold">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">人机对齐率</div>
+            <div class="stat-value"><span class="counter" data-target="78">0</span><span class="stat-unit">%</span></div>
+            <div class="stat-change positive">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              +3% 较上周
+            </div>
+            <div class="stat-icon teal">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 管道概览 -->
+        <div class="pipeline-section">
+          <div class="pipeline-header">
+            <h2 class="font-heading">Pipeline 概览</h2>
+            <span class="text-muted" style="font-size:12px;">3 个活跃岗位</span>
+          </div>
+
+          <div class="pipeline-bar" id="pipeline-1">
+            <div class="job-name">高级前端工程师</div>
+            <div class="job-meta">技术部 · 25K-40K · 发布 7 天 · <span class="badge badge-amber">紧急</span></div>
+            <div class="pipeline-stages">
+              <div class="pipeline-stage">
+                <div class="stage-name">待筛选</div>
+                <div class="stage-count has-candidates">12</div>
+              </div>
+              <div class="pipeline-stage">
+                <div class="stage-name">待定</div>
+                <div class="stage-count has-candidates">5</div>
+              </div>
+              <div class="pipeline-stage">
+                <div class="stage-name">面试中</div>
+                <div class="stage-count has-candidates">3</div>
+              </div>
+              <div class="pipeline-stage">
+                <div class="stage-name">已淘汰</div>
+                <div class="stage-count">8</div>
+              </div>
+              <div class="pipeline-stage">
+                <div class="stage-name">已录用</div>
+                <div class="stage-count has-candidates">1</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pipeline-bar" id="pipeline-2">
+            <div class="job-name">短视频剪辑师</div>
+            <div class="job-meta">内容部 · 10K-18K · 发布 3 天 · <span class="badge badge-gold">一般</span></div>
+            <div class="pipeline-stages">
+              <div class="pipeline-stage">
+                <div class="stage-name">待筛选</div>
+                <div class="stage-count has-candidates">6</div>
+              </div>
+              <div class="pipeline-stage">
+                <div class="stage-name">待定</div>
+                <div class="stage-count has-candidates">2</div>
+              </div>
+              <div class="pipeline-stage">
+                <div class="stage-name">面试中</div>
+                <div class="stage-count">0</div>
+              </div>
+              <div class="pipeline-stage">
+                <div class="stage-name">已淘汰</div>
+                <div class="stage-count">3</div>
+              </div>
+              <div class="pipeline-stage">
+                <div class="stage-name">已录用</div>
+                <div class="stage-count">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pipeline-bar" id="pipeline-3">
+            <div class="job-name">产品经理</div>
+            <div class="job-meta">产品部 · 20K-35K · 发布 14 天 · <span class="badge badge-gold">一般</span></div>
+            <div class="pipeline-stages">
+              <div class="pipeline-stage">
+                <div class="stage-name">待筛选</div>
+                <div class="stage-count has-candidates">4</div>
+              </div>
+              <div class="pipeline-stage">
+                <div class="stage-name">待定</div>
+                <div class="stage-count has-candidates">3</div>
+              </div>
+              <div class="pipeline-stage">
+                <div class="stage-name">面试中</div>
+                <div class="stage-count has-candidates">2</div>
+              </div>
+              <div class="pipeline-stage">
+                <div class="stage-name">已淘汰</div>
+                <div class="stage-count">6</div>
+              </div>
+              <div class="pipeline-stage">
+                <div class="stage-name">已录用</div>
+                <div class="stage-count">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 活动列表 + AI建议 -->
+        <div class="dashboard-bottom">
+          <div class="activity-card">
+            <h3 class="font-heading">最近动态</h3>
+            <div class="activity-item type-import">
+              <div class="activity-icon import">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-text">新简历 <strong>3 份</strong> 导入成功</div>
+                <div class="activity-time">5 分钟前</div>
+              </div>
+            </div>
+            <div class="activity-item type-score">
+              <div class="activity-icon score">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2"/></svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>张明</strong> 的简历已完成 AI 评分 — <span class="score-badge score-pass">4.6</span></div>
+                <div class="activity-time">18 分钟前</div>
+              </div>
+            </div>
+            <div class="activity-item type-interview">
+              <div class="activity-icon interview">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>李华</strong> 通过面试 — 进入待录用阶段</div>
+                <div class="activity-time">1 小时前</div>
+              </div>
+            </div>
+            <div class="activity-item type-decision">
+              <div class="activity-icon decision">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>赵强</strong> 被标记为淘汰 — AI 评分 2.3</div>
+                <div class="activity-time">2 小时前</div>
+              </div>
+            </div>
+            <div class="activity-item type-score">
+              <div class="activity-icon score">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2"/></svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>周婷</strong> 的简历已完成 AI 评分 — <span class="score-badge score-pending">3.8</span></div>
+                <div class="activity-time">3 小时前</div>
+              </div>
+            </div>
+            <div class="activity-item type-interview">
+              <div class="activity-icon interview">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-text">面试题已为 <strong>吴磊</strong> 自动生成（16 题）</div>
+                <div class="activity-time">昨天 16:30</div>
+              </div>
+            </div>
+            <div class="activity-item type-import">
+              <div class="activity-icon import">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-text">批量导入 <strong>5 份</strong> 简历至「产品经理」岗位</div>
+                <div class="activity-time">昨天 14:20</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ai-insights-card">
+            <h3 class="font-heading">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2m-3.3-6.7l-1.4 1.4M6.7 17.3l-1.4 1.4m0-13.4l1.4 1.4m10.6 10.6l1.4 1.4"/></svg>
+              AI 建议
+            </h3>
+            <div class="insight-item">
+              <span class="insight-tag warning">优先复审</span>
+              <strong>3 位候选人</strong>评分接近通过线（4.3-4.5），建议优先安排面试复审，避免优秀人才流失。
+            </div>
+            <div class="insight-item">
+              <span class="insight-tag info">效率提示</span>
+              前端工程师岗位筛选进度 <strong>72%</strong>，建议本周完成初筛，下周集中面试。
+            </div>
+            <div class="insight-item">
+              <span class="insight-tag warning">风险提醒</span>
+              短视频剪辑师岗位<strong>简历量不足</strong>，建议扩大招聘渠道或调整岗位要求。
+            </div>
+            <div class="insight-item">
+              <span class="insight-tag info">数据洞察</span>
+              本周人机对齐率较上周提升 <strong>3%</strong>，AI 模型评估准确度持续优化。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 页面2：岗位管理 ==================== -->
+      <div class="page-view" id="page-jobs">
+        <div class="jobs-header">
+          <h2 class="font-heading">岗位管理</h2>
+          <button class="btn btn-primary" onclick="openModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            新建岗位
+          </button>
+        </div>
+
+        <div class="job-list" id="jobList">
+          <div class="job-card selected" onclick="selectJob(this, 0)">
+            <div class="job-main">
+              <div class="job-title">高级前端工程师</div>
+              <div class="job-details">
+                <span>技术部</span>
+                <span>2024-01-15 发布</span>
+                <span class="job-salary">25K-40K</span>
+              </div>
+            </div>
+            <div class="badge badge-amber">紧急</div>
+            <div class="job-counts">
+              <div class="job-count-item"><div class="count">12</div><div class="label">待筛选</div></div>
+              <div class="job-count-item"><div class="count">5</div><div class="label">待定</div></div>
+              <div class="job-count-item"><div class="count">3</div><div class="label">面试中</div></div>
+            </div>
+          </div>
+          <div class="job-card" onclick="selectJob(this, 1)">
+            <div class="job-main">
+              <div class="job-title">短视频剪辑师</div>
+              <div class="job-details">
+                <span>内容部</span>
+                <span>2024-01-19 发布</span>
+                <span class="job-salary">10K-18K</span>
+              </div>
+            </div>
+            <div class="badge badge-gold">一般</div>
+            <div class="job-counts">
+              <div class="job-count-item"><div class="count">6</div><div class="label">待筛选</div></div>
+              <div class="job-count-item"><div class="count">2</div><div class="label">待定</div></div>
+              <div class="job-count-item"><div class="count">0</div><div class="label">面试中</div></div>
+            </div>
+          </div>
+          <div class="job-card" onclick="selectJob(this, 2)">
+            <div class="job-main">
+              <div class="job-title">产品经理</div>
+              <div class="job-details">
+                <span>产品部</span>
+                <span>2024-01-08 发布</span>
+                <span class="job-salary">20K-35K</span>
+              </div>
+            </div>
+            <div class="badge badge-gold">一般</div>
+            <div class="job-counts">
+              <div class="job-count-item"><div class="count">4</div><div class="label">待筛选</div></div>
+              <div class="job-count-item"><div class="count">3</div><div class="label">待定</div></div>
+              <div class="job-count-item"><div class="count">2</div><div class="label">面试中</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 看板 -->
+        <div id="kanbanBoard" class="kanban-board">
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="col-name">待筛选</span>
+              <span class="col-count">5</span>
+            </div>
+            <div class="kanban-cards">
+              <div class="kanban-card">
+                <div class="kc-name">张明</div>
+                <div class="kc-score"><span class="score-badge score-pass">4.6</span></div>
+                <div class="kc-skill"><span class="tag">React</span></div>
+                <div class="kc-time">10 分钟前</div>
+              </div>
+              <div class="kanban-card">
+                <div class="kc-name">刘洋</div>
+                <div class="kc-score"><span class="score-badge score-pending">3.9</span></div>
+                <div class="kc-skill"><span class="tag">Vue</span></div>
+                <div class="kc-time">1 小时前</div>
+              </div>
+              <div class="kanban-card">
+                <div class="kc-name">陈思</div>
+                <div class="kc-score"><span class="score-badge score-pass">4.8</span></div>
+                <div class="kc-skill"><span class="tag">TypeScript</span></div>
+                <div class="kc-time">2 小时前</div>
+              </div>
+              <div class="kanban-card">
+                <div class="kc-name">王芳</div>
+                <div class="kc-score"><span class="score-badge score-pending">4.2</span></div>
+                <div class="kc-skill"><span class="tag">Node.js</span></div>
+                <div class="kc-time">3 小时前</div>
+              </div>
+              <div class="kanban-card">
+                <div class="kc-name">孙鹏</div>
+                <div class="kc-score"><span class="score-badge score-reject">2.1</span></div>
+                <div class="kc-skill"><span class="tag">HTML/CSS</span></div>
+                <div class="kc-time">5 小时前</div>
+              </div>
+            </div>
+          </div>
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="col-name">待定</span>
+              <span class="col-count">2</span>
+            </div>
+            <div class="kanban-cards">
+              <div class="kanban-card">
+                <div class="kc-name">周婷</div>
+                <div class="kc-score"><span class="score-badge score-pending">4.3</span></div>
+                <div class="kc-skill"><span class="tag">React</span> <span class="tag">Redux</span></div>
+                <div class="kc-time">昨天</div>
+              </div>
+              <div class="kanban-card">
+                <div class="kc-name">吴磊</div>
+                <div class="kc-score"><span class="score-badge score-pass">4.5</span></div>
+                <div class="kc-skill"><span class="tag">Next.js</span></div>
+                <div class="kc-time">昨天</div>
+              </div>
+            </div>
+          </div>
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="col-name">面试中</span>
+              <span class="col-count">2</span>
+            </div>
+            <div class="kanban-cards">
+              <div class="kanban-card">
+                <div class="kc-name">李华</div>
+                <div class="kc-score"><span class="score-badge score-pass">4.7</span></div>
+                <div class="kc-skill"><span class="tag">React</span> <span class="tag">TS</span></div>
+                <div class="kc-time">今天 14:00</div>
+              </div>
+              <div class="kanban-card">
+                <div class="kc-name">赵强</div>
+                <div class="kc-score"><span class="score-badge score-pending">3.5</span></div>
+                <div class="kc-skill"><span class="tag">Angular</span></div>
+                <div class="kc-time">明天 10:00</div>
+              </div>
+            </div>
+          </div>
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="col-name">已淘汰</span>
+              <span class="col-count">3</span>
+            </div>
+            <div class="kanban-cards">
+              <div class="kanban-card">
+                <div class="kc-name">杨丽</div>
+                <div class="kc-score"><span class="score-badge score-reject">2.0</span></div>
+                <div class="kc-skill"><span class="tag">jQuery</span></div>
+                <div class="kc-time">3 天前</div>
+              </div>
+              <div class="kanban-card">
+                <div class="kc-name">马超</div>
+                <div class="kc-score"><span class="score-badge score-reject">1.8</span></div>
+                <div class="kc-skill"><span class="tag">Flash</span></div>
+                <div class="kc-time">4 天前</div>
+              </div>
+              <div class="kanban-card">
+                <div class="kc-name">郑伟</div>
+                <div class="kc-score"><span class="score-badge score-reject">2.5</span></div>
+                <div class="kc-skill"><span class="tag">Bootstrap</span></div>
+                <div class="kc-time">5 天前</div>
+              </div>
+            </div>
+          </div>
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="col-name">已录用</span>
+              <span class="col-count">1</span>
+            </div>
+            <div class="kanban-cards">
+              <div class="kanban-card">
+                <div class="kc-name">林悦</div>
+                <div class="kc-score"><span class="score-badge score-pass">4.9</span></div>
+                <div class="kc-skill"><span class="tag">React</span> <span class="tag">Go</span></div>
+                <div class="kc-time">1 月 20 日</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 页面3：简历管理 ==================== -->
+      <div class="page-view" id="page-resumes">
+        <div class="resume-top-bar">
+          <select class="form-select" id="filterJob" onchange="filterResumes()">
+            <option value="all">全部岗位</option>
+            <option value="前端工程师">前端工程师</option>
+            <option value="剪辑师">剪辑师</option>
+            <option value="产品经理">产品经理</option>
+          </select>
+          <select class="form-select" id="filterScore" onchange="filterResumes()">
+            <option value="all">全部评分</option>
+            <option value="pass">已通过 (≥4.5)</option>
+            <option value="pending">待定 (3.0-4.4)</option>
+            <option value="reject">建议淘汰 (&lt;3.0)</option>
+          </select>
+          <input type="text" class="form-input" placeholder="搜索姓名..." id="filterName" oninput="filterResumes()" style="min-width:140px;">
+          <button class="btn btn-primary" onclick="toggleUpload()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            上传简历
+          </button>
+        </div>
+
+        <!-- 上传区域 -->
+        <div class="upload-area" id="uploadArea">
+          <div class="upload-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <p>拖拽 PDF / Word 文件到此处，或点击选择文件</p>
+          <div class="upload-hint">支持 .pdf, .doc, .docx 格式，单文件最大 10MB</div>
+          <div class="upload-progress" id="uploadProgress">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-text" id="progressText">上传中 0%</div>
+          </div>
+        </div>
+
+        <!-- 简历列表 -->
+        <div class="resume-table-wrapper">
+          <table class="resume-table">
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>应聘岗位</th>
+                <th>AI 综合分</th>
+                <th>T0 硬技能</th>
+                <th>T1 软技能</th>
+                <th>精细筛选</th>
+                <th>加分项</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="resumeTableBody">
+              <!-- JS 渲染 -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 简历详情面板 -->
+        <div class="detail-panel-overlay" id="detailPanel">
+          <div class="detail-panel-close">
+            <span style="font-weight:600;">候选人详情</span>
+            <button class="modal-close" onclick="closeDetail()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="detail-content" id="detailContent">
+            <!-- JS 动态渲染 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 页面4：面试管理 ==================== -->
+      <div class="page-view" id="page-interview">
+        <div class="interview-selector">
+          <h2 class="font-heading">面试管理</h2>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <select class="form-select" id="interviewCandidate" onchange="loadInterviewGuide()" style="max-width:300px;">
+              <option value="">选择候选人...</option>
+              <option value="0">张明 — 高级前端工程师</option>
+              <option value="1">李华 — 高级前端工程师</option>
+              <option value="2">陈思 — 高级前端工程师</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="generateInterviewQuestionsForSelected()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2"/></svg>
+              AI 生成面试题
+            </button>
+          </div>
+        </div>
+
+        <div class="interview-guide" id="interviewGuide" style="display:none;">
+          <!-- 面试指南 - 9 个板块 -->
+          <div class="interview-section" data-section="1">
+            <div class="interview-section-header" onclick="toggleSection(this)">
+              <div class="section-info">
+                <span class="section-num">1</span>
+                <span class="section-name">破冰</span>
+              </div>
+              <div class="section-meta">
+                <span class="section-progress">0/1</span>
+                <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="interview-section-body">
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q1</span>
+                  <div class="q-text">今天过来的交通还方便吗？从公司到这里大概花了多长时间？</div>
+                </div>
+                <div class="q-tag"><span class="tag">破冰 · 建立信任</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="interview-section" data-section="2">
+            <div class="interview-section-header" onclick="toggleSection(this)">
+              <div class="section-info">
+                <span class="section-num">2</span>
+                <span class="section-name">自我介绍</span>
+              </div>
+              <div class="section-meta">
+                <span class="section-progress">0/1</span>
+                <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="interview-section-body">
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q2</span>
+                  <div class="q-text">请你用 3 分钟左右的时间做一个自我介绍，重点聊聊你最近的工作经历和最自豪的项目。</div>
+                </div>
+                <div class="q-tag"><span class="tag">表达力 · 逻辑性 · 经历概览</span></div>
+                <div class="q-answers">
+                  <div class="answer-level good">
+                    <div class="answer-level-header" onclick="toggleAnswer(this)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      优质回答
+                    </div>
+                    <div class="answer-level-body">
+                      <p>结构清晰（过去→现在→未来），突出核心竞争力；有具体数据支撑（"带领 5 人团队完成 xxx"），时间控制在 3 分钟内，自然自信。</p>
+                    </div>
+                  </div>
+                  <div class="answer-level medium">
+                    <div class="answer-level-header" onclick="toggleAnswer(this)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      中等回答
+                    </div>
+                    <div class="answer-level-body">
+                      <p>信息完整但缺乏重点，像流水账；没有数据支撑或案例，偏泛泛而谈；超时或过短（不到 1 分钟）。</p>
+                    </div>
+                  </div>
+                  <div class="answer-level bad">
+                    <div class="answer-level-header" onclick="toggleAnswer(this)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      较差回答
+                    </div>
+                    <div class="answer-level-body">
+                      <p>紧张、磕巴、缺乏条理；过度谦虚或过度吹嘘；与应聘岗位毫无关联的介绍。</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="interview-section" data-section="3">
+            <div class="interview-section-header" onclick="toggleSection(this)">
+              <div class="section-info">
+                <span class="section-num">3</span>
+                <span class="section-name">离职动机</span>
+              </div>
+              <div class="section-meta">
+                <span class="section-progress">0/2</span>
+                <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="interview-section-body">
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q3</span>
+                  <div class="q-text">你在上一家公司工作得怎么样？是什么原因让你考虑新的机会？</div>
+                </div>
+                <div class="q-tag"><span class="tag">稳定性 · 职业规划 · 离职原因合理性</span></div>
+                <div class="q-answers">
+                  <div class="answer-level good">
+                    <div class="answer-level-header" onclick="toggleAnswer(this)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      优质回答
+                    </div>
+                    <div class="answer-level-body">
+                      <p>积极导向（追求成长、更大平台），对前公司表达感谢，离职理由合情合理，不涉及负面情绪和人际冲突。</p>
+                    </div>
+                  </div>
+                  <div class="answer-level medium">
+                    <div class="answer-level-header" onclick="toggleAnswer(this)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      中等回答
+                    </div>
+                    <div class="answer-level-body">
+                      <p>原因比较模糊（"想换个环境"），缺乏明确职业动机；对前公司评价中性偏负面。</p>
+                    </div>
+                  </div>
+                  <div class="answer-level bad">
+                    <div class="answer-level-header" onclick="toggleAnswer(this)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      较差回答
+                    </div>
+                    <div class="answer-level-body">
+                      <p>对前公司或领导强烈抱怨；频繁跳槽且理由牵强；看不出清晰的职业规划。</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q4</span>
+                  <div class="q-text">如果在我们公司遇到和之前类似的困难，你会怎么处理？</div>
+                </div>
+                <div class="q-tag"><span class="tag">抗压能力 · 问题解决思维</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="interview-section" data-section="4">
+            <div class="interview-section-header" onclick="toggleSection(this)">
+              <div class="section-info">
+                <span class="section-num">4</span>
+                <span class="section-name">STAR 行为面试</span>
+              </div>
+              <div class="section-meta">
+                <span class="section-progress">0/4</span>
+                <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="interview-section-body">
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q5</span>
+                  <div class="q-text">请分享一个你在前端项目中遇到的最大的技术挑战，你是如何解决的？（请用 STAR 法则回答）</div>
+                </div>
+                <div class="q-tag"><span class="tag">技术深度 · 问题解决 · STAR法则</span></div>
+                <div class="q-answers">
+                  <div class="answer-level good">
+                    <div class="answer-level-header" onclick="toggleAnswer(this)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      优质回答
+                    </div>
+                    <div class="answer-level-body">
+                      <p>完整的 STAR 结构，技术细节充分（如：性能瓶颈定位、虚拟列表优化、Webpack分包策略等）；展示了独立思考和技术判断力，有量化结果（"首屏加载时间从 4.2s 降至 1.8s"）。</p>
+                    </div>
+                  </div>
+                  <div class="answer-level medium">
+                    <div class="answer-level-header" onclick="toggleAnswer(this)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      中等回答
+                    </div>
+                    <div class="answer-level-body">
+                      <p>有问题描述和解决方案，但 STAR 结构不完整；技术细节较浅，依赖团队或框架默认方案。</p>
+                    </div>
+                  </div>
+                  <div class="answer-level bad">
+                    <div class="answer-level-header" onclick="toggleAnswer(this)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      较差回答
+                    </div>
+                    <div class="answer-level-body">
+                      <p>无法给出具体案例，或案例过于简单（"改了个 bug"）；技术描述混乱，看不到独立解决复杂问题的能力。</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q6</span>
+                  <div class="q-text">描述一次你与产品经理或设计师意见不合的经历，你最终是如何处理的？</div>
+                </div>
+                <div class="q-tag"><span class="tag">沟通协作 · 冲突处理 · 向上管理</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q7</span>
+                  <div class="q-text">你有没有在项目中推动过技术方案的改进或创新？具体做了什么？</div>
+                </div>
+                <div class="q-tag"><span class="tag">主动性 · 技术视野 · 影响力</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q8</span>
+                  <div class="q-text">你在团队代码评审中最常提出的意见类型是什么？能举一个具体的例子吗？</div>
+                </div>
+                <div class="q-tag"><span class="tag">Code Review · 工程素养 · 团队贡献</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="interview-section" data-section="5">
+            <div class="interview-section-header" onclick="toggleSection(this)">
+              <div class="section-info">
+                <span class="section-num">5</span>
+                <span class="section-name">验证追问</span>
+              </div>
+              <div class="section-meta">
+                <span class="section-progress">0/2</span>
+                <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="interview-section-body">
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q9</span>
+                  <div class="q-text">你在简历中提到"精通 TypeScript"，能否说说你在类型系统设计上的实践？比如如何设计复杂的泛型工具类型？</div>
+                </div>
+                <div class="q-tag"><span class="tag">深度验证 · 简历真实性 · TypeScript 高阶</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q10</span>
+                  <div class="q-text">你提到独立负责过 3 个中大型项目的前端架构设计，能详细说说其中一个项目的架构选型过程吗？</div>
+                </div>
+                <div class="q-tag"><span class="tag">架构能力 · 选型思维 · 独立性验证</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="interview-section" data-section="6">
+            <div class="interview-section-header" onclick="toggleSection(this)">
+              <div class="section-info">
+                <span class="section-num">6</span>
+                <span class="section-name">情景模拟</span>
+              </div>
+              <div class="section-meta">
+                <span class="section-progress">0/2</span>
+                <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="interview-section-body">
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q11</span>
+                  <div class="q-text">假设你入职后第一周，产品经理丢给你一个需求，要求在一周内上线一个包含复杂表单和实时数据看板的功能模块，你会怎么规划？</div>
+                </div>
+                <div class="q-tag"><span class="tag">执行力 · 时间管理 · 需求拆解</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q12</span>
+                  <div class="q-text">线上突然出现了一个严重的前端 Bug 导致用户无法提交订单，而你刚提交的代码被怀疑是问题根源，你会怎么处理？</div>
+                </div>
+                <div class="q-tag"><span class="tag">应急能力 · 心理素质 · 责任感</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="interview-section" data-section="7">
+            <div class="interview-section-header" onclick="toggleSection(this)">
+              <div class="section-info">
+                <span class="section-num">7</span>
+                <span class="section-name">价值观测试</span>
+              </div>
+              <div class="section-meta">
+                <span class="section-progress">0/2</span>
+                <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="interview-section-body">
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q13</span>
+                  <div class="q-text">在你看来，一个优秀的前端工程师最重要的特质是什么？为什么？</div>
+                </div>
+                <div class="q-tag"><span class="tag">价值观 · 职业认知 · 自我定位</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q14</span>
+                  <div class="q-text">如果让你在「技术深度」和「业务理解」之间选择一个更重要的方向，你会选哪个？</div>
+                </div>
+                <div class="q-tag"><span class="tag">权衡思维 · 认知层次 · 文化契合</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="interview-section" data-section="8">
+            <div class="interview-section-header" onclick="toggleSection(this)">
+              <div class="section-info">
+                <span class="section-num">8</span>
+                <span class="section-name">压力测试</span>
+              </div>
+              <div class="section-meta">
+                <span class="section-progress">0/1</span>
+                <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="interview-section-body">
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q15</span>
+                  <div class="q-text">我注意到你在上一份工作中只待了一年半，你觉得这个时间足够做出什么有价值的成果吗？</div>
+                </div>
+                <div class="q-tag"><span class="tag">压力反应 · 自信度 · 逻辑自洽</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="interview-section" data-section="9">
+            <div class="interview-section-header" onclick="toggleSection(this)">
+              <div class="section-info">
+                <span class="section-num">9</span>
+                <span class="section-name">候选人反问</span>
+              </div>
+              <div class="section-meta">
+                <span class="section-progress">0/1</span>
+                <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="interview-section-body">
+              <div class="question-card">
+                <div class="q-header">
+                  <span class="q-num">Q16</span>
+                  <div class="q-text">你有什么想问我们的吗？（记录候选人提出的问题）</div>
+                </div>
+                <div class="q-tag"><span class="tag">求职意向 · 关注维度 · 深度思考</span></div>
+                <div class="q-score">
+                  <label>评分：</label>
+                  <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+                </div>
+                <div class="q-notes"><textarea placeholder="记录候选人的问题..."></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 面试录音区 -->
+          <div class="interview-recorder" id="interviewRecorder">
+            <h3 class="font-heading">🎙️ 面试录音</h3>
+            <div class="recorder-main">
+              <button class="recorder-btn" id="recorderBtn" onclick="toggleRecording()" title="开始/停止录音">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="23"/>
+                  <line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
+              </button>
+              <div class="recorder-timer" id="recorderTimer">00:00</div>
+              <div class="recorder-status" id="recorderStatus">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">点击麦克风开始录音</span>
+              </div>
+            </div>
+            <div class="recorder-transcript-box" id="transcriptBox"></div>
+            <div class="recorder-actions" id="recorderActions" style="display:none;">
+              <button class="btn btn-secondary" onclick="transcribeAudio()" id="transcribeBtn" style="display:none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                AI 语音转写
+              </button>
+              <button class="btn btn-primary" onclick="extractNotes()" id="extractBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2"/></svg>
+                AI 提取重点
+              </button>
+              <button class="btn btn-secondary" onclick="clearTranscript()">清空重录</button>
+            </div>
+            <div class="recorder-unsupported" id="recorderUnsupported">
+              ⚠️ 您的浏览器不支持语音识别。请使用 <strong>Chrome</strong> 或 <strong>Edge</strong> 浏览器，或手动粘贴转写文本：
+            </div>
+            <div class="recorder-manual-input active" id="recorderManual">
+              <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">💡 如果语音识别不可用，可直接粘贴转写文本：</div>
+              <textarea placeholder="在此粘贴面试录音的转写文本，然后点击「AI 提取重点」..." id="manualTranscriptInput"></textarea>
+              <button class="btn btn-primary" style="margin-top:12px;" onclick="extractNotesFromManual()" id="manualExtractBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2"/></svg>
+                提交并提取
+              </button>
+            </div>
+          </div>
+
+          <!-- 面试笔记表单 -->
+          <div class="interview-notes">
+            <h3 class="font-heading">面试综合评价</h3>
+            <div class="notes-grid">
+              <div class="form-group full-width">
+                <label class="form-label">候选人整体印象</label>
+                <textarea class="form-textarea" placeholder="总结对候选人的整体印象..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">技术能力</label>
+                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent-gold);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">沟通表达</label>
+                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent-gold);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">团队协作</label>
+                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent-gold);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">文化契合</label>
+                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent-gold);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">成长潜力</label>
+                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent-gold);">
+              </div>
+              <div class="form-group full-width">
+                <label class="form-label">关键语录记录</label>
+                <textarea class="form-textarea" placeholder="记录面试中的关键语录..."></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label class="form-label">录用倾向</label>
+                <div class="radio-group">
+                  <label class="radio-label"><input type="radio" name="tendency" value="strong"> 强烈推荐</label>
+                  <label class="radio-label"><input type="radio" name="tendency" value="recommend"> 推荐</label>
+                  <label class="radio-label"><input type="radio" name="tendency" value="hold"> 保留</label>
+                  <label class="radio-label"><input type="radio" name="tendency" value="reject"> 不推荐</label>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="showToast('面试评价已保存')">保存面试评价</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 页面5：AI 评估 ==================== -->
+      <div class="page-view" id="page-evaluation">
+        <h2 class="font-heading" style="font-size:22px;margin-bottom:20px;">AI 评估报告</h2>
+        <select class="form-select" id="evalCandidate" onchange="loadEvalReport()" style="max-width:300px;margin-bottom:24px;">
+          <option value="">选择候选人...</option>
+          <option value="0">张明 — 高级前端工程师</option>
+          <option value="1">李华 — 高级前端工程师</option>
+          <option value="2">陈思 — 高级前端工程师</option>
+          <option value="3">赵强 — 高级前端工程师</option>
+        </select>
+
+        <div class="eval-report" id="evalReport" style="display:none;">
+          <!-- 头部 -->
+          <div class="eval-report-header">
+            <div class="report-info">
+              <div class="report-name" id="evalName">张明</div>
+              <div class="report-position" id="evalPosition">应聘：高级前端工程师 · 技术部</div>
+              <div class="report-badge" id="evalBadge"></div>
+            </div>
+            <div class="eval-score-ring-lg" id="evalScoreRing">
+              <svg viewBox="0 0 120 120">
+                <circle class="ring-bg" cx="60" cy="60" r="52"/>
+                <circle class="ring-fill" id="evalRingFill" cx="60" cy="60" r="52" stroke="var(--accent-teal)" stroke-dasharray="326.73" stroke-dashoffset="326.73"/>
+              </svg>
+              <div class="ring-value">
+                <div class="score-num" id="evalScoreNum">4.6</div>
+                <div class="score-label">综合评分</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 总评 -->
+          <div class="eval-summary-text" id="evalSummary">
+            候选人张明拥有扎实的 React 技术栈基础，3 年前端开发经验中独立承担过中大型项目的前端架构设计，TypeScript 使用熟练。在简历中体现出了良好的工程化思维和项目交付能力。沟通表达方面待进一步通过面试验证。
+          </div>
+
+          <!-- 图表区 -->
+          <div class="eval-charts-row">
+            <div class="chart-card">
+              <h4 class="font-heading">六维能力雷达图</h4>
+              <canvas id="radarChart" width="320" height="320"></canvas>
+            </div>
+            <div class="chart-card">
+              <h4 class="font-heading">情绪与需求分析</h4>
+              <div class="emotion-card" id="emotionCard">
+                <div class="emotion-item">
+                  <div class="emotion-dot" style="background:var(--accent-teal)"></div>
+                  <span class="emotion-label">状态</span>
+                  <span class="emotion-value">自信稳定</span>
+                </div>
+                <div class="emotion-item">
+                  <div class="emotion-dot" style="background:var(--accent-gold)"></div>
+                  <span class="emotion-label">动机</span>
+                  <span class="emotion-value">追求技术成长</span>
+                </div>
+                <div class="emotion-item">
+                  <div class="emotion-dot" style="background:#7C6DDB"></div>
+                  <span class="emotion-label">需求</span>
+                  <span class="emotion-value">技术决策权 + 团队影响力</span>
+                </div>
+                <div class="emotion-item">
+                  <div class="emotion-dot" style="background:var(--accent-amber)"></div>
+                  <span class="emotion-label">风险</span>
+                  <span class="emotion-value">可能对重复性工作缺乏耐心</span>
+                </div>
+                <div class="emotion-item">
+                  <div class="emotion-dot" style="background:var(--accent-teal)"></div>
+                  <span class="emotion-label">稳定性</span>
+                  <span class="emotion-value">中等偏高（前司任职 2.5 年）</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 核心亮点 -->
+          <div class="chart-card" style="margin-bottom:24px;">
+            <h4 class="font-heading">核心亮点</h4>
+            <ul class="highlights-list">
+              <li><strong>架构能力突出</strong>：简历原文 <span class="quote">"独立负责过 3 个中大型项目的前端架构设计"</span>，展现了超越 3 年经验的架构思维</li>
+              <li><strong>技术栈匹配度极高</strong>：React + TypeScript + 现代工程化工具链，与岗位要求高度一致</li>
+              <li><strong>项目成果可量化</strong>：<span class="quote">"将首屏加载时间优化 60%，日活用户 10 万+"</span>，说明具备数据驱动的工程意识</li>
+              <li><strong>持续学习能力</strong>：参与开源项目、技术社区活跃，展现了技术热情和成长意愿</li>
+            </ul>
+          </div>
+
+          <!-- 录用建议 -->
+          <div class="eval-recommendation">
+            <h3 class="font-heading">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              录用建议
+            </h3>
+            <div class="rec-text">
+              综合简历 AI 评估结果，<strong>建议通过初筛进入面试环节</strong>。候选人在技术硬实力维度表现优秀，与岗位核心需求匹配度达 92%。建议面试中重点验证其实际架构设计能力和团队协作沟通表现。
+            </div>
+            <div class="rec-risk">
+              <strong>风险提示：</strong>候选人上一份工作任职 2.5 年后离职，建议面试中了解离职真实动机；简历中团队管理经验较少，如岗位需要 lead 能力需进一步评估。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 页面6：人机对比 ==================== -->
+      <div class="page-view" id="page-comparison">
+        <h2 class="font-heading" style="font-size:22px;margin-bottom:20px;">人机对比分析</h2>
+        <select class="form-select" id="compCandidate" onchange="loadComparison()" style="max-width:300px;margin-bottom:24px;">
+          <option value="">选择候选人...</option>
+          <option value="0">张明 — 高级前端工程师</option>
+          <option value="1">李华 — 高级前端工程师</option>
+        </select>
+
+        <div class="comparison-container" id="comparisonContainer" style="display:none;">
+          <!-- 面试官判断 -->
+          <div class="comparison-column">
+            <h3 class="font-heading">面试官判断</h3>
+            <div class="comp-badge"><span class="badge badge-teal">推荐录用</span></div>
+            <div class="comp-bars">
+              <div class="comp-bar-item">
+                <div class="comp-bar-label"><span class="label">硬技能</span><span class="value">4.5</span></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:90%;background:var(--accent-teal);"></div></div>
+              </div>
+              <div class="comp-bar-item">
+                <div class="comp-bar-label"><span class="label">软技能</span><span class="value">4.0</span></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:80%;background:var(--accent-teal);"></div></div>
+              </div>
+              <div class="comp-bar-item">
+                <div class="comp-bar-label"><span class="label">文化契合</span><span class="value">3.5</span></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:70%;background:var(--accent-amber);"></div></div>
+              </div>
+              <div class="comp-bar-item">
+                <div class="comp-bar-label"><span class="label">稳定性</span><span class="value">3.0</span></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:60%;background:var(--accent-amber);"></div></div>
+              </div>
+              <div class="comp-bar-item">
+                <div class="comp-bar-label"><span class="label">成长潜力</span><span class="value">4.5</span></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:90%;background:var(--accent-teal);"></div></div>
+              </div>
+            </div>
+            <div class="comparison-notes">
+              面试印象：技术基础扎实，React 和 TypeScript 回答流畅。架构设计思路清晰，能从业务角度出发做技术选型。沟通表达中等偏上，性格偏内敛但不影响协作。对技术有热情，关注社区动态。
+            </div>
+          </div>
+
+          <!-- 中间对齐指示 -->
+          <div class="comparison-middle">
+            <div class="align-indicator aligned">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="align-text aligned">评估一致</div>
+          </div>
+
+          <!-- AI 评估 -->
+          <div class="comparison-column">
+            <h3 class="font-heading">AI 综合评估</h3>
+            <div class="comp-badge"><span class="badge badge-teal">推荐录用</span></div>
+            <div class="comp-bars">
+              <div class="comp-bar-item">
+                <div class="comp-bar-label"><span class="label">硬技能</span><span class="value">4.6</span></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:92%;background:var(--accent-gold);"></div></div>
+              </div>
+              <div class="comp-bar-item">
+                <div class="comp-bar-label"><span class="label">软技能</span><span class="value">3.8</span></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:76%;background:var(--accent-gold);"></div></div>
+              </div>
+              <div class="comp-bar-item">
+                <div class="comp-bar-label"><span class="label">文化契合</span><span class="value">3.6</span></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:72%;background:var(--accent-gold);"></div></div>
+              </div>
+              <div class="comp-bar-item">
+                <div class="comp-bar-label"><span class="label">稳定性</span><span class="value">3.2</span></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:64%;background:var(--accent-gold);"></div></div>
+              </div>
+              <div class="comp-bar-item">
+                <div class="comp-bar-label"><span class="label">成长潜力</span><span class="value">4.3</span></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:86%;background:var(--accent-gold);"></div></div>
+              </div>
+            </div>
+            <div class="comparison-notes">
+              AI 评估摘要：候选人技术栈与岗位匹配度 92%，简历评分 4.6/5.0。核心优势在 React 生态的深度使用和独立架构设计经验。软技能维度基于简历信息评估有限，建议面试重点验证。
+            </div>
+          </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="comparison-actions" id="comparisonActions" style="display:none;">
+          <button class="btn btn-primary" onclick="showToast('已确认录用，已发送 Offer 通知')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            确认录用
+          </button>
+          <button class="btn btn-secondary" onclick="showToast('已安排复试通知')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            安排复试
+          </button>
+          <button class="btn btn-secondary" style="border-color:rgba(232,93,93,0.3);color:var(--accent-red);" onclick="showToast('候选人已标记为淘汰')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            淘汰候选人
+          </button>
+        </div>
+      </div>
+    </div><!-- /page-container -->
+  </div><!-- /main-area -->
+</div><!-- /app-layout -->
+
+<!-- 新建岗位模态框 -->
+<div class="modal-overlay" id="jobModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="font-heading">新建岗位</h3>
+      <button class="modal-close" onclick="closeModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">岗位名称</label>
+        <input type="text" class="form-input" placeholder="例如：高级前端工程师">
+      </div>
+      <div class="form-group">
+        <label class="form-label">部门</label>
+        <select class="form-select">
+          <option>技术部</option>
+          <option>产品部</option>
+          <option>内容部</option>
+          <option>运营部</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">薪资范围 (K)</label>
+        <div style="display:flex;gap:12px;">
+          <input type="number" class="form-input" placeholder="最低" style="flex:1;">
+          <span style="display:flex;align-items:center;color:var(--text-secondary);">-</span>
+          <input type="number" class="form-input" placeholder="最高" style="flex:1;">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">紧急程度</label>
+        <select class="form-select">
+          <option>紧急</option>
+          <option>一般</option>
+          <option>不急</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">职位描述 (JD)</label>
+        <textarea class="form-textarea" id="jdEditor" placeholder="输入职位描述，或点击下方按钮由 AI 自动生成..."></textarea>
+      </div>
+      <button class="btn btn-secondary" onclick="generateJD()" style="width:100%;justify-content:center;margin-bottom:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2"/></svg>
+        AI 生成 JD
+      </button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="showToast('岗位创建成功');closeModal();">创建岗位</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast 通知 -->
+<div id="toastContainer" style="position:fixed;top:80px;right:32px;z-index:200;display:flex;flex-direction:column;gap:8px;"></div>
+
+<script>
+/* ============================================
+   AIHR MVP — JavaScript 交互逻辑
+   ============================================ */
+
+// ===== 模拟数据 =====
+const resumes = [
+  { id:0, name:'张明', position:'前端工程师', score:4.6, t0:4.8, t1:4.2, fine:4.5, bonus:4.7, status:'已通过', phone:'138****2761', email:'zhangming@email.com', edu:'本科·浙江大学·计算机科学', years:'3 年', salary:'25K-35K',
+    skills:['React','TypeScript','Webpack','Node.js','Git'],
+    work:[
+      {company:'某互联网大厂',role:'高级前端工程师',period:'2022.03 - 至今',desc:'负责电商平台前端架构设计，带领 3 人小组完成核心交易链路重构。'},
+      {company:'某创业公司',role:'前端开发工程师',period:'2020.07 - 2022.02',desc:'独立开发 SaaS 管理后台，从 0 搭建 Vue3 + TypeScript 技术栈。'}
+    ],
+    traces:[
+      {dim:'T0 硬技能',score:4.8,quote:'3 年 React 开发经验，精通 TypeScript，独立负责过 3 个中大型项目的前端架构设计',reason:'工作年限 3 年(+1.5) + React/TS 精通(+1.8) + 独立架构设计(+1.5) = 4.8',formula:'1.5 + 1.8 + 1.5 = 4.8'},
+      {dim:'T1 软技能',score:4.2,quote:'带领 3 人小组完成核心交易链路重构，推动团队 Code Review 机制落地',reason:'团队协作(+1.5) + 技术推动力(+1.2) + 项目管理(+1.5) = 4.2',formula:'1.5 + 1.2 + 1.5 = 4.2'},
+      {dim:'精细筛选',score:4.5,quote:'浙江大学计算机科学本科，有大厂 + 创业公司双背景',reason:'学历匹配(+1.5) + 大厂背景(+1.8) + 创业经历(+1.2) = 4.5',formula:'1.5 + 1.8 + 1.2 = 4.5'},
+      {dim:'加分项',score:4.7,quote:'GitHub 开源项目 500+ star，技术博客月访问 2 万+',reason:'开源贡献(+2.0) + 技术影响力(+1.7) + 持续学习(+1.0) = 4.7',formula:'2.0 + 1.7 + 1.0 = 4.7'}
+    ]},
+  { id:1, name:'李华', position:'前端工程师', score:4.7, t0:4.6, t1:4.8, fine:4.4, bonus:4.9, status:'已通过', phone:'139****8834', email:'lihua@email.com', edu:'硕士·清华大学·软件工程', years:'4 年', salary:'28K-40K',
+    skills:['React','Vue','GraphQL','Docker','CI/CD'],
+    work:[
+      {company:'某头部科技公司',role:'前端技术专家',period:'2021.06 - 至今',desc:'负责国际化项目前端架构，搭建微前端体系，支撑 20+ 子应用。'},
+      {company:'某金融科技公司',role:'前端开发工程师',period:'2019.07 - 2021.05',desc:'开发量化交易平台前端模块，使用 WebSocket 实现实时数据展示。'}
+    ],traces:[]},
+  { id:2, name:'陈思', position:'前端工程师', score:4.8, t0:4.9, t1:4.3, fine:4.8, bonus:5.0, status:'已通过', phone:'137****5512', email:'chensi@email.com', edu:'本科·北京大学·信息工程', years:'5 年', salary:'30K-45K',
+    skills:['React','Next.js','Rust/WASM','Three.js','WebGL'],
+    work:[{company:'某知名互联网公司',role:'资深前端工程师',period:'2020.03 - 至今',desc:'主导 3D 可视化产品前端开发，将 WebGL 渲染性能提升 300%。'}],traces:[]},
+  { id:3, name:'赵强', position:'前端工程师', score:2.3, t0:2.0, t1:2.5, fine:2.2, bonus:2.4, status:'建议淘汰', phone:'136****3398', email:'zhaoqiang@email.com', edu:'大专·某职业技术学院·计算机应用', years:'2 年', salary:'12K-18K',
+    skills:['Angular','jQuery','Bootstrap','SASS'],
+    work:[{company:'某传统软件公司',role:'网页制作',period:'2022.01 - 至今',desc:'使用 jQuery 和 Bootstrap 维护企业官网和管理后台。'}],traces:[]},
+  { id:4, name:'刘洋', position:'前端工程师', score:3.9, t0:4.0, t1:3.6, fine:4.1, bonus:3.8, status:'待定', phone:'135****7723', email:'liuyang@email.com', edu:'本科·华中科技大学·软件工程', years:'3 年', salary:'20K-30K',
+    skills:['Vue','React','JavaScript','Element UI','微信小程序'],
+    work:[{company:'某中型互联网公司',role:'前端开发工程师',period:'2021.04 - 至今',desc:'负责多个 Vue3 项目开发，参与微信小程序搭建。'}],traces:[]},
+  { id:5, name:'周婷', position:'前端工程师', score:3.8, t0:3.5, t1:4.2, fine:3.8, bonus:3.9, status:'待定', phone:'133****9945', email:'zhouting@email.com', edu:'本科·武汉理工大学·数字媒体', years:'2 年', salary:'15K-22K',
+    skills:['React','Redux','CSS3','Figma','动效设计'],
+    work:[{company:'某设计驱动型公司',role:'前端开发工程师',period:'2022.06 - 至今',desc:'负责设计稿高保真还原，擅长复杂 CSS 动效和响应式布局。'}],traces:[]},
+  { id:6, name:'王芳', position:'剪辑师', score:4.2, t0:4.5, t1:4.0, fine:3.8, bonus:4.3, status:'待定', phone:'131****6654', email:'wangfang@email.com', edu:'本科·中国传媒大学·广播电视编导', years:'4 年', salary:'12K-18K',
+    skills:['Premiere Pro','After Effects','达芬奇调色','短视频策划'],
+    work:[{company:'某 MCN 机构',role:'高级剪辑师',period:'2021.01 - 至今',desc:'负责抖音千万粉丝账号视频剪辑，月产出 30+ 条高质量短视频。'}],traces:[]},
+  { id:7, name:'吴磊', position:'前端工程师', score:4.5, t0:4.6, t1:4.0, fine:4.4, bonus:4.6, status:'已通过', phone:'158****2247', email:'wulei@email.com', edu:'本科·电子科技大学·计算机科学', years:'4 年', salary:'22K-35K',
+    skills:['React','Next.js','Tailwind CSS','PostgreSQL','Vercel'],
+    work:[{company:'某 SaaS 创业公司',role:'前端负责人',period:'2020.09 - 至今',desc:'从 0 搭建 Next.js + Tailwind CSS 前端架构，带领 4 人前端团队。'}],traces:[]}
+];
+
+// 页面标题映射
+const pageTitles = {
+  dashboard: '工作台',
+  jobs: '岗位管理',
+  resumes: '简历管理',
+  interview: '面试管理',
+  evaluation: 'AI 评估',
+  comparison: '人机对比'
+};
+
+// ===== 页面导航 =====
+function switchPage(page) {
+  // 隐藏所有页面
+  document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  // 显示目标页面
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+  const nav = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if (nav) nav.classList.add('active');
+  // 更新标题
+  document.getElementById('headerTitle').textContent = pageTitles[page] || page;
+  // 触发计数动画（仅仪表盘）
+  if (page === 'dashboard') animateCounters();
+  // 渲染简历表格
+  if (page === 'resumes') renderResumeTable();
+}
+
+// ===== 数字计数动画 =====
+function animateCounters() {
+  document.querySelectorAll('.counter').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    const duration = 1200;
+    const start = performance.now();
+    el.textContent = '0';
+    function update(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      el.textContent = Math.round(target * eased);
+      if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  });
+}
+
+// ===== 岗位选择 =====
+function selectJob(el, idx) {
+  document.querySelectorAll('.job-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ===== 模态框 =====
+function openModal() { document.getElementById('jobModal').classList.add('active'); }
+function closeModal() { document.getElementById('jobModal').classList.remove('active'); }
+
+// ===== AI 生成 JD =====
+function generateJD() {
+  const jd = `【岗位名称】高级前端工程师
+【所属部门】技术部
+【薪资范围】25K-40K
+
+【岗位职责】
+1. 负责公司核心产品的前端架构设计和技术选型
+2. 主导 React/TypeScript 技术栈的开发工作，确保代码质量和性能
+3. 参与产品需求评审，从技术角度提供解决方案和优化建议
+4. 建立和维护前端工程化体系（CI/CD、代码规范、组件库）
+5. 指导初中级开发人员，推动团队技术成长
+
+【任职要求】
+1. 3 年以上前端开发经验，精通 React 生态（Hooks、Redux、Next.js）
+2. 熟练掌握 TypeScript，具备复杂类型设计能力
+3. 深入理解前端性能优化，有大型 SPA 应用开发经验
+4. 熟悉 Webpack/Vite 等构建工具，了解微前端架构
+5. 良好的沟通协作能力，有技术方案设计和技术文档撰写经验
+
+【加分项】
+- 有开源项目贡献或技术社区影响力
+- 有全栈开发经验（Node.js/Go）
+- 有 3D/WebGL/数据可视化相关经验`;
+  document.getElementById('jdEditor').value = jd;
+  showToast('JD 已由 AI 生成');
+}
+
+// ===== 简历管理 =====
+function renderResumeTable(filtered) {
+  const data = filtered || resumes;
+  const tbody = document.getElementById('resumeTableBody');
+  tbody.innerHTML = data.map(r => {
+    const sc = r.score >= 4.5 ? 'score-pass' : r.score >= 3.0 ? 'score-pending' : 'score-reject';
+    const st = r.status === '已通过' ? 'badge-teal' : r.status === '待定' ? 'badge-amber' : 'badge-red';
+    return `<tr onclick="openDetail(${r.id})">
+      <td class="name-cell">${r.name}</td>
+      <td>${r.position}</td>
+      <td class="score-cell"><span class="score-badge ${sc}">${r.score}</span></td>
+      <td class="score-cell" style="font-size:12px;">${r.t0}</td>
+      <td class="score-cell" style="font-size:12px;">${r.t1}</td>
+      <td class="score-cell" style="font-size:12px;">${r.fine}</td>
+      <td class="score-cell" style="font-size:12px;">${r.bonus}</td>
+      <td><span class="badge ${st}">${r.status}</span></td>
+      <td class="actions-cell">
+        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();openDetail(${r.id})">详情</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterResumes() {
+  const job = document.getElementById('filterJob').value;
+  const score = document.getElementById('filterScore').value;
+  const name = document.getElementById('filterName').value.toLowerCase();
+  let filtered = [...resumes];
+  if (job !== 'all') filtered = filtered.filter(r => r.position.includes(job));
+  if (score === 'pass') filtered = filtered.filter(r => r.score >= 4.5);
+  else if (score === 'pending') filtered = filtered.filter(r => r.score >= 3.0 && r.score < 4.5);
+  else if (score === 'reject') filtered = filtered.filter(r => r.score < 3.0);
+  if (name) filtered = filtered.filter(r => r.name.toLowerCase().includes(name));
+  renderResumeTable(filtered);
+}
+
+// ===== 简历详情面板 =====
+function openDetail(id) {
+  const r = resumes.find(x => x.id === id);
+  if (!r) return;
+  const sc = r.score >= 4.5 ? 'var(--accent-teal)' : r.score >= 3.0 ? 'var(--accent-amber)' : 'var(--accent-red)';
+  const pct = r.score / 5;
+  const circ = 2 * Math.PI * 34; // radius 34
+  const offset = circ * (1 - pct);
+
+  let tracesHTML = '';
+  if (r.traces && r.traces.length > 0) {
+    tracesHTML = r.traces.map(t => {
+      const tPct = t.score / 5;
+      const tColor = t.score >= 4.5 ? 'var(--accent-teal)' : t.score >= 3.0 ? 'var(--accent-amber)' : 'var(--accent-red)';
+      return `<div class="eval-expand">
+        <div class="eval-expand-header" onclick="this.parentElement.classList.toggle('open')">
+          <div class="eval-dim"><span style="color:${tColor};font-family:var(--font-mono);font-weight:600;">${t.score}/5.0</span> ${t.dim}</div>
+          <div class="eval-bar" style="width:120px;margin:0;"><div class="eval-bar-fill" style="width:${tPct*100}%;background:${tColor};"></div></div>
+          <svg class="eval-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="eval-expand-body">
+          <div class="trace-expand">
+            <div class="trace-header" onclick="this.parentElement.classList.toggle('open')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              查看评分溯源
+            </div>
+            <div class="trace-body">
+              <div class="trace-block"><div class="trace-label">简历原文摘录</div><div class="trace-text">"${t.quote}"</div></div>
+              <div class="trace-block"><div class="trace-label">AI 推理过程</div><div class="trace-text">${t.reason}</div></div>
+              <div class="trace-block"><div class="trace-label">得分映射公式</div><div class="trace-formula">${t.formula}</div></div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    tracesHTML = '<p style="color:var(--text-tertiary);font-size:13px;">详细评分溯源数据仅对已完成 AI 深度评估的候选人展示</p>';
+  }
+
+  const workHTML = r.work.map(w => `<div style="margin-bottom:16px;padding:12px 16px;background:var(--bg-primary);border-radius:8px;">
+    <div style="font-weight:600;margin-bottom:4px;">${w.company} — ${w.role}</div>
+    <div style="font-size:12px;color:var(--accent-gold);margin-bottom:6px;">${w.period}</div>
+    <div style="font-size:13px;color:var(--text-secondary);">${w.desc}</div>
+  </div>`).join('');
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-header">
+      <div>
+        <div class="detail-name">${r.name}</div>
+        <div class="detail-position">应聘：${r.position}</div>
+      </div>
+      <div class="detail-score-ring">
+        <svg viewBox="0 0 80 80">
+          <circle class="ring-bg" cx="40" cy="40" r="34"/>
+          <circle class="ring-fill" cx="40" cy="40" r="34" stroke="${sc}" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/>
+        </svg>
+        <div class="ring-value" style="color:${sc};">${r.score}</div>
+      </div>
+    </div>
+    <div class="detail-info-grid">
+      <div class="detail-info-item"><div class="info-label">姓名</div><div class="info-value">${r.name}</div></div>
+      <div class="detail-info-item"><div class="info-label">手机</div><div class="info-value">${r.phone}</div></div>
+      <div class="detail-info-item"><div class="info-label">邮箱</div><div class="info-value">${r.email}</div></div>
+      <div class="detail-info-item"><div class="info-label">学历</div><div class="info-value">${r.edu}</div></div>
+      <div class="detail-info-item"><div class="info-label">工作年限</div><div class="info-value">${r.years}</div></div>
+      <div class="detail-info-item"><div class="info-label">期望薪资</div><div class="info-value">${r.salary}</div></div>
+    </div>
+    <div class="detail-section">
+      <h4>工作经历</h4>
+      ${workHTML}
+    </div>
+    <div class="detail-section">
+      <h4>技能标签</h4>
+      <div class="skill-tags">${r.skills.map(s => `<span class="tag">${s}</span>`).join('')}</div>
+    </div>
+    <div class="detail-section">
+      <h4>AI 评分详情</h4>
+      ${tracesHTML}
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-primary btn-sm" onclick="showToast('面试题已生成（16 题）')">生成面试题</button>
+      <button class="btn btn-secondary btn-sm" onclick="showToast('已标记为通过')">标记通过</button>
+      <button class="btn btn-secondary btn-sm" onclick="showToast('已标记为待定')">标记待定</button>
+      <button class="btn btn-secondary btn-sm" style="border-color:rgba(232,93,93,0.3);color:var(--accent-red);" onclick="showToast('已标记为淘汰')">淘汰</button>
+    </div>`;
+  document.getElementById('detailPanel').classList.add('active');
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('active');
+}
+
+// ===== 上传模拟 =====
+function toggleUpload() {
+  const area = document.getElementById('uploadArea');
+  area.classList.toggle('active');
+  if (area.classList.contains('active')) simulateUpload();
+}
+
+function simulateUpload() {
+  const fill = document.getElementById('progressFill');
+  const text = document.getElementById('progressText');
+  const prog = document.getElementById('uploadProgress');
+  fill.style.width = '0%';
+  prog.classList.add('active');
+  let pct = 0;
+  const iv = setInterval(() => {
+    pct += Math.random() * 15 + 5;
+    if (pct >= 100) { pct = 100; clearInterval(iv);
+      text.textContent = '上传完成 — 正在解析简历...';
+      setTimeout(() => {
+        showToast('简历上传成功，AI 评分中...');
+        prog.classList.remove('active');
+        fill.style.width = '0%';
+      }, 800);
+    } else { text.textContent = '上传中 ' + Math.round(pct) + '%'; }
+    fill.style.width = pct + '%';
+  }, 200);
+}
+
+// ===== 面试管理 =====
+function toggleSection(el) {
+  el.closest('.interview-section').classList.toggle('open');
+}
+
+function toggleAnswer(el) {
+  el.closest('.answer-level').classList.toggle('open');
+}
+
+function loadInterviewGuide() {
+  const v = document.getElementById('interviewCandidate').value;
+  const guide = document.getElementById('interviewGuide');
+  if (v === '') { guide.style.display = 'none'; return; }
+  guide.style.display = 'block';
+
+  // 尝试从 API 加载已有面试题，否则使用默认题
+  loadInterviewQuestions(parseInt(v) + 1).then(loaded => {
+    if (!loaded) {
+      // 保持当前 HTML 中的默认面试题（已在页面中）
+    }
+  });
+}
+
+// ===== AI 评估 =====
+function loadEvalReport() {
+  const v = document.getElementById('evalCandidate').value;
+  const report = document.getElementById('evalReport');
+  if (v === '') { report.style.display = 'none'; return; }
+  report.style.display = 'block';
+  // 动画评分环
+  const data = [
+    {name:'张明',score:4.6,pos:'高级前端工程师 · 技术部',badge:'通过'},
+    {name:'李华',score:4.7,pos:'高级前端工程师 · 技术部',badge:'通过'},
+    {name:'陈思',score:4.8,pos:'高级前端工程师 · 技术部',badge:'通过'},
+    {name:'赵强',score:2.3,pos:'高级前端工程师 · 技术部',badge:'淘汰'}
+  ];
+  const d = data[v];
+  document.getElementById('evalName').textContent = d.name;
+  document.getElementById('evalPosition').textContent = '应聘：' + d.pos;
+  document.getElementById('evalBadge').innerHTML = d.badge === '通过'
+    ? '<span class="badge badge-teal" style="font-size:13px;padding:5px 16px;">建议通过</span>'
+    : '<span class="badge badge-red" style="font-size:13px;padding:5px 16px;">建议淘汰</span>';
+  document.getElementById('evalScoreNum').textContent = d.score;
+  const color = d.score >= 4.5 ? 'var(--accent-teal)' : 'var(--accent-red)';
+  document.getElementById('evalRingFill').setAttribute('stroke', color);
+  const pct = d.score / 5;
+  const circ = 2 * Math.PI * 52;
+  setTimeout(() => {
+    document.getElementById('evalRingFill').setAttribute('stroke-dashoffset', circ * (1 - pct));
+  }, 100);
+  // 绘制雷达图
+  drawRadarChart(v);
+}
+
+function drawRadarChart(idx) {
+  const canvas = document.getElementById('radarChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = 320 * dpr;
+  canvas.height = 320 * dpr;
+  ctx.scale(dpr, dpr);
+  const cx = 160, cy = 160, R = 120;
+  const labels = ['硬技能','软技能','文化契合','稳定性','成长潜力','沟通表达'];
+  const datasets = [
+    [0.92,0.84,0.72,0.64,0.86,0.76],
+    [0.93,0.96,0.82,0.78,0.90,0.88],
+    [0.98,0.86,0.88,0.76,0.94,0.82],
+    [0.40,0.50,0.42,0.38,0.44,0.46]
+  ];
+  const data = datasets[idx] || datasets[0];
+  const n = 6;
+
+  // 清除
+  ctx.clearRect(0, 0, 320, 320);
+
+  // 绘制网格
+  for (let ring = 1; ring <= 5; ring++) {
+    const r = R * ring / 5;
+    ctx.beginPath();
+    for (let i = 0; i <= n; i++) {
+      const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(201, 149, 60, 0.12)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // 绘制轴线
+  for (let i = 0; i < n; i++) {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + R * Math.cos(angle), cy + R * Math.sin(angle));
+    ctx.strokeStyle = 'rgba(201, 149, 60, 0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // 绘制数据区域
+  ctx.beginPath();
+  for (let i = 0; i <= n; i++) {
+    const idx2 = i % n;
+    const angle = (Math.PI * 2 * idx2 / n) - Math.PI / 2;
+    const x = cx + R * data[idx2] * Math.cos(angle);
+    const y = cy + R * data[idx2] * Math.sin(angle);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  // 渐变填充
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+  grad.addColorStop(0, 'rgba(201, 149, 60, 0.25)');
+  grad.addColorStop(1, 'rgba(201, 149, 60, 0.05)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(201, 149, 60, 0.8)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // 绘制数据点
+  for (let i = 0; i < n; i++) {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const x = cx + R * data[i] * Math.cos(angle);
+    const y = cy + R * data[i] * Math.sin(angle);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#C9953C';
+    ctx.fill();
+    ctx.strokeStyle = '#0E1117';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // 绘制标签
+  ctx.font = '12px "DM Sans", sans-serif';
+  ctx.fillStyle = '#8B949E';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i < n; i++) {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const x = cx + (R + 24) * Math.cos(angle);
+    const y = cy + (R + 24) * Math.sin(angle);
+    ctx.fillText(labels[i], x, y);
+  }
+}
+
+// ===== 人机对比 =====
+function loadComparison() {
+  const v = document.getElementById('compCandidate').value;
+  document.getElementById('comparisonContainer').style.display = v !== '' ? 'grid' : 'none';
+  document.getElementById('comparisonActions').style.display = v !== '' ? 'flex' : 'none';
+}
+
+// ===== Toast 通知 =====
+function showToast(msg) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.style.cssText = 'padding:12px 20px;background:var(--bg-tertiary);border:1px solid var(--border-strong);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:var(--font-body);box-shadow:0 8px 24px rgba(0,0,0,0.3);animation:fadeInUp 0.3s ease;display:flex;align-items:center;gap:8px;';
+  toast.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s ease'; setTimeout(() => toast.remove(), 300); }, 2500);
+}
+
+// ===== API 调用层 =====
+const API_BASE = '/api';
+
+async function apiCall(method, path, body) {
+  try {
+    const opts = {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+    };
+    if (body && method !== 'GET') opts.body = JSON.stringify(body);
+    const res = await fetch(API_BASE + path, opts);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || `HTTP ${res.status}`);
+    }
+    return await res.json();
+  } catch (e) {
+    console.error('API Error:', e);
+    throw e;
+  }
+}
+
+async function apiUpload(file, jobId) {
+  const form = new FormData();
+  form.append('file', file);
+  if (jobId) form.append('job_id', jobId);
+  const res = await fetch(API_BASE + '/resumes/upload', { method: 'POST', body: form });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || `HTTP ${res.status}`);
+  }
+  return await res.json();
+}
+
+// ===== 录音功能（MediaRecorder 真实录音 → 后端 Whisper 转写） =====
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+let recordingSeconds = 0;
+let recordingTimer = null;
+let audioBlob = null;
+let finalTranscript = '';
+
+function toggleRecording() {
+  if (isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+async function startRecording() {
+  audioChunks = [];
+  audioBlob = null;
+  recordingSeconds = 0;
+
+  // 检查安全上下文（非 HTTPS 或 localhost 时 getUserMedia 会失败）
+  if (!window.isSecureContext) {
+    document.getElementById('statusText').textContent = '⚠️ 录音需要 HTTPS 环境。部署到线上后即可正常使用，或暂时使用下方粘贴转写功能';
+    showToast('⚠️ 当前非安全环境，录音功能不可用。请部署到 HTTPS 或使用粘贴转写');
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus'
+      : MediaRecorder.isTypeSupported('audio/webm')
+        ? 'audio/webm'
+        : 'audio/mp4';
+    mediaRecorder = new MediaRecorder(stream, { mimeType });
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) audioChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      audioBlob = new Blob(audioChunks, { type: mimeType });
+    };
+
+    mediaRecorder.start(1000);
+  } catch (e) {
+    console.error('录音启动失败:', e);
+    document.getElementById('statusText').textContent = '❌ 麦克风权限被拒绝，请在浏览器设置中允许。或使用下方粘贴转写功能';
+    return;
+  }
+
+  isRecording = true;
+  const btn = document.getElementById('recorderBtn');
+  const timer = document.getElementById('recorderTimer');
+  const dot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const box = document.getElementById('transcriptBox');
+  const actions = document.getElementById('recorderActions');
+
+  btn.classList.add('recording');
+  btn.classList.remove('processing');
+  timer.classList.add('recording');
+  dot.classList.add('recording');
+  dot.classList.remove('done');
+  dot.style.background = '';
+  statusText.textContent = '🔴 录音中...';
+  box.classList.add('active');
+  box.innerHTML = '<span style="color:var(--text-secondary);">录音中，完成后点「AI 语音转写」转为文字...</span>';
+  actions.style.display = 'none';
+
+  updateTimer();
+  recordingTimer = setInterval(() => {
+    recordingSeconds++;
+    updateTimer();
+  }, 1000);
+}
+
+function stopRecording() {
+  if (!isRecording) return;
+  isRecording = false;
+  clearInterval(recordingTimer);
+
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+  }
+
+  const btn = document.getElementById('recorderBtn');
+  const timer = document.getElementById('recorderTimer');
+  const dot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const actions = document.getElementById('recorderActions');
+  const box = document.getElementById('transcriptBox');
+
+  btn.classList.remove('recording');
+  timer.classList.remove('recording');
+  dot.classList.remove('recording');
+  dot.classList.add('done');
+  dot.style.background = '';
+  statusText.textContent = '录音完成 · ' + formatTime(recordingSeconds);
+  box.innerHTML = '<span style="color:var(--text-secondary);">录音已保存，请点击「AI 语音转写」</span>';
+  actions.style.display = 'flex';
+  document.getElementById('extractBtn').style.display = 'none';
+  document.getElementById('transcribeBtn').style.display = 'inline-flex';
+}
+
+async function transcribeAudio() {
+  if (!audioBlob || audioBlob.size === 0) {
+    showToast('没有录音数据');
+    return;
+  }
+
+  const transcribeBtn = document.getElementById('transcribeBtn');
+  const extractBtn = document.getElementById('extractBtn');
+  const box = document.getElementById('transcriptBox');
+  const recorderBtn = document.getElementById('recorderBtn');
+
+  transcribeBtn.disabled = true;
+  extractBtn.style.display = 'none';
+  recorderBtn.classList.add('processing');
+  transcribeBtn.innerHTML = '<div style="width:16px;height:16px;border:2px solid var(--accent-gold);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div> AI 转写中...';
+  box.innerHTML = '<span style="color:var(--accent-gold);">⏳ 音频已上传，AI 正在转写（约需 1-2 分钟）...</span>';
+  showToast('音频上传中，AI 正在语音转文字...');
+
+  try {
+    const form = new FormData();
+    form.append('file', audioBlob, 'recording.webm');
+
+    const res = await fetch(API_BASE + '/interviews/transcribe', { method: 'POST', body: form });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: '转写失败' }));
+      throw new Error(err.detail || 'HTTP ' + res.status);
+    }
+    const data = await res.json();
+    finalTranscript = data.text || '';
+    box.textContent = finalTranscript;
+    const statusText = document.getElementById('statusText');
+    statusText.textContent = '转写完成 · ' + finalTranscript.length + ' 字';
+    extractBtn.style.display = 'inline-flex';
+    showToast('✅ 转写完成！点击「AI 提取重点」填充表单');
+  } catch (e) {
+    box.innerHTML = '<span style="color:var(--accent-red);">❌ 转写失败：' + e.message + '</span>';
+    showToast('⚠️ 转写失败：' + e.message);
+  } finally {
+    transcribeBtn.disabled = false;
+    recorderBtn.classList.remove('processing');
+    transcribeBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg> AI 语音转写';
+  }
+}
+
+function updateTimer() {
+  document.getElementById('recorderTimer').textContent = formatTime(recordingSeconds);
+}
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60).toString().padStart(2, '0');
+  const s = (sec % 60).toString().padStart(2, '0');
+  return m + ':' + s;
+}
+
+function clearTranscript() {
+  finalTranscript = '';
+  audioBlob = null;
+  audioChunks = [];
+  recordingSeconds = 0;
+  document.getElementById('transcriptBox').innerHTML = '';
+  document.getElementById('transcriptBox').classList.remove('active');
+  document.getElementById('recorderActions').style.display = 'none';
+  document.getElementById('recorderTimer').textContent = '00:00';
+  document.getElementById('statusDot').classList.remove('done');
+  document.getElementById('statusText').textContent = '点击麦克风开始录音';
+}
+
+// ===== AI 提取面试笔记 =====
+async function extractNotes() {
+  if (!finalTranscript.trim()) {
+    showToast('请先录音');
+    return;
+  }
+
+  const btn = document.getElementById('extractBtn');
+  const recorderBtn = document.getElementById('recorderBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div style="width:16px;height:16px;border:2px solid var(--accent-gold);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div> AI 提取中...';
+  recorderBtn.classList.add('processing');
+  showToast('AI 正在分析面试内容...');
+
+  try {
+    const candidateName = document.getElementById('interviewCandidate').selectedOptions[0]?.text || '';
+    const notes = await apiCall('POST', '/interviews/extract-notes', {
+      transcript: finalTranscript.trim(),
+      candidate_name: candidateName,
+      position: '高级前端工程师'
+    });
+
+    fillFormWithNotes(notes);
+    showToast('✅ AI 提取完成，表单已自动填充');
+  } catch (e) {
+    showToast('⚠️ AI 提取失败：' + e.message);
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2"/></svg> AI 提取重点`;
+    recorderBtn.classList.remove('processing');
+  }
+}
+
+async function extractNotesFromManual() {
+  const textarea = document.getElementById('manualTranscriptInput');
+  if (!textarea.value.trim()) {
+    showToast('请先粘贴转写文本');
+    return;
+  }
+
+  const btn = document.querySelector('#recorderManual .btn-primary');
+  btn.disabled = true;
+  btn.textContent = 'AI 提取中...';
+  showToast('AI 正在分析...');
+
+  try {
+    const notes = await apiCall('POST', '/interviews/extract-notes', {
+      transcript: textarea.value.trim(),
+      candidate_name: '',
+      position: '高级前端工程师'
+    });
+
+    fillFormWithNotes(notes);
+    showToast('✅ AI 提取完成，表单已自动填充');
+  } catch (e) {
+    showToast('⚠️ AI 提取失败：' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '提交并提取';
+  }
+}
+
+function fillFormWithNotes(notes) {
+  // 填充整体印象
+  const impressionEl = document.querySelector('#interviewGuide textarea');
+  if (impressionEl && notes.overall_impression) {
+    impressionEl.value = notes.overall_impression;
+  }
+
+  // 填充各板块备注
+  if (notes.section_notes) {
+    const sections = document.querySelectorAll('.interview-section');
+    notes.section_notes.forEach((sn, i) => {
+      if (i < sections.length) {
+        const textareas = sections[i].querySelectorAll('textarea');
+        textareas.forEach(ta => {
+          if (!ta.value && sn.note) ta.value = sn.note;
+        });
+        // 填充评分
+        if (sn.score) {
+          const selects = sections[i].querySelectorAll('.q-score select');
+          selects.forEach(sel => {
+            if (sel.value === '-') sel.value = sn.score;
+          });
+        }
+      }
+    });
+  }
+
+  // 填充综合印象
+  const notesImpression = document.querySelector('.interview-notes .form-textarea');
+  if (notesImpression && notes.overall_impression) {
+    notesImpression.value = notes.overall_impression;
+  }
+
+  // 填充关键语录
+  if (notes.key_quotes) {
+    const quotesArea = document.querySelector('.interview-notes .form-textarea:last-of-type');
+    if (quotesArea) {
+      const quotesText = notes.key_quotes.map((q, i) => `${i + 1}. "${q}"`).join('\n');
+      quotesArea.value = quotesText;
+    }
+  }
+
+  // 填充录用倾向
+  if (notes.tendency) {
+    const tendencyMap = {
+      '强烈推荐': 0, '推荐': 1, '保留': 2, '不推荐': 3
+    };
+    const idx = tendencyMap[notes.tendency];
+    if (idx !== undefined) {
+      const radios = document.querySelectorAll('.interview-notes input[type="radio"]');
+      if (radios[idx]) radios[idx].checked = true;
+    }
+  }
+
+  // 滚动到笔记表单
+  document.querySelector('.interview-notes').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===== 面试题 API 对接 =====
+function generateInterviewQuestionsForSelected() {
+  const v = document.getElementById('interviewCandidate').value;
+  if (v === '') { showToast('请先选择候选人'); return; }
+  const candidateId = parseInt(v) + 1; // 简单映射：0→id=1, 1→id=2, 2→id=3
+  generateInterviewQuestions(candidateId);
+}
+
+async function loadInterviewQuestions(candidateId) {
+  try {
+    const data = await apiCall('GET', `/candidates/${candidateId}/questions`);
+    if (data.sections && data.sections.length > 0) {
+      renderInterviewSections(data.sections);
+      return true;
+    }
+  } catch (e) {
+    console.error('加载面试题失败:', e);
+  }
+  return false;
+}
+
+async function generateInterviewQuestions(candidateId) {
+  showToast('AI 正在生成面试题...');
+  try {
+    const data = await apiCall('POST', `/candidates/${candidateId}/generate-questions`);
+    if (data.sections && data.sections.length > 0) {
+      renderInterviewSections(data.sections);
+      showToast('✅ 面试题已生成（共 ' + countQuestions(data.sections) + ' 题）');
+      return;
+    }
+  } catch (e) {
+    showToast('⚠️ 面试题生成失败：' + e.message);
+  }
+}
+
+function countQuestions(sections) {
+  return sections.reduce((sum, s) => sum + (s.questions ? s.questions.length : 0), 0);
+}
+
+function renderInterviewSections(sections) {
+  const guide = document.getElementById('interviewGuide');
+  let html = '';
+  sections.forEach((section, si) => {
+    const qCount = section.questions ? section.questions.length : 0;
+    html += `<div class="interview-section" data-section="${si + 1}">
+      <div class="interview-section-header" onclick="toggleSection(this)">
+        <div class="section-info">
+          <span class="section-num">${section.num || si + 1}</span>
+          <span class="section-name">${section.name}</span>
+        </div>
+        <div class="section-meta">
+          <span class="section-progress">0/${qCount}</span>
+          <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="interview-section-body">`;
+
+    if (section.questions) {
+      section.questions.forEach((q, qi) => {
+        html += `<div class="question-card">
+          <div class="q-header">
+            <span class="q-num">${q.q_num || 'Q' + (qi + 1)}</span>
+            <div class="q-text">${q.text}</div>
+          </div>
+          <div class="q-tag"><span class="tag">${q.tags || section.name}</span></div>`;
+
+        if (q.answers) {
+          html += `<div class="q-answers">
+            ${q.answers.good ? `<div class="answer-level good"><div class="answer-level-header" onclick="toggleAnswer(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>优质回答</div><div class="answer-level-body"><p>${q.answers.good}</p></div></div>` : ''}
+            ${q.answers.medium ? `<div class="answer-level medium"><div class="answer-level-header" onclick="toggleAnswer(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>中等回答</div><div class="answer-level-body"><p>${q.answers.medium}</p></div></div>` : ''}
+            ${q.answers.bad ? `<div class="answer-level bad"><div class="answer-level-header" onclick="toggleAnswer(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>较差回答</div><div class="answer-level-body"><p>${q.answers.bad}</p></div></div>` : ''}
+          </div>`;
+        }
+
+        html += `<div class="q-score">
+            <label>评分：</label>
+            <select><option>-</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+          </div>
+          <div class="q-notes"><textarea placeholder="面试官备注..."></textarea></div>
+        </div>`;
+      });
+    }
+
+    html += `</div></div>`;
+  });
+
+  guide.innerHTML = html;
+}
+
+// ===== 初始化 =====
+document.addEventListener('DOMContentLoaded', () => {
+  animateCounters();
+  renderResumeTable();
+});
+</script>
+</body>
+</html>

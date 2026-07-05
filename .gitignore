@@ -1,0 +1,10 @@
+__pycache__/
+.env
+*.pyc
+temp/
+uploads/
+data.db
+*.pcm
+*.opus
+test_tone.*
+test_asr_debug.py
