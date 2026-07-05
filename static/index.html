@@ -6,7 +6,7 @@
 <title>AIHR — AI 智能招聘助手</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ============================================
    AIHR MVP — Warm Professional Command Center
@@ -15,29 +15,29 @@
 
 /* --- CSS 变量 / 主题令牌 --- */
 :root {
-  --bg-primary: #0E1117;
-  --bg-secondary: #161B22;
-  --bg-tertiary: #1C2128;
-  --bg-glass: rgba(22, 27, 34, 0.7);
-  --accent-gold: #C9953C;
-  --accent-gold-dim: rgba(201, 149, 60, 0.15);
-  --accent-gold-glow: rgba(201, 149, 60, 0.35);
-  --accent-teal: #2DD4A8;
-  --accent-red: #E85D5D;
-  --accent-amber: #E5A93E;
-  --text-primary: #E6EDF3;
-  --text-secondary: #8B949E;
-  --text-tertiary: #545D68;
-  --border: rgba(201, 149, 60, 0.12);
-  --border-strong: rgba(201, 149, 60, 0.25);
-  --sidebar-width: 260px;
-  --header-height: 64px;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-lg: 16px;
-  --transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  --font-heading: 'Cormorant Garamond', Georgia, serif;
-  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --bg-primary: #090D14;
+  --bg-secondary: #111620;
+  --bg-tertiary: #181E28;
+  --bg-glass: rgba(17, 22, 32, 0.85);
+  --accent: #5B8DEF;
+  --accent-dim: rgba(91, 141, 239, 0.12);
+  --accent-glow: rgba(91, 141, 239, 0.25);
+  --accent-teal: #34D399;
+  --accent-red: #F87171;
+  --accent-amber: #FBBF24;
+  --text-primary: #E8ECF1;
+  --text-secondary: #94A3B8;
+  --text-tertiary: #5E6A7A;
+  --border: rgba(91, 141, 239, 0.1);
+  --border-strong: rgba(91, 141, 239, 0.2);
+  --sidebar-width: 240px;
+  --header-height: 60px;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
@@ -79,16 +79,16 @@ body::after {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 600px 400px at 15% 20%, rgba(201, 149, 60, 0.06), transparent),
+    radial-gradient(ellipse 600px 400px at 15% 20%, rgba(91, 141, 239, 0.06), transparent),
     radial-gradient(ellipse 500px 500px at 80% 70%, rgba(45, 212, 168, 0.04), transparent),
-    radial-gradient(ellipse 400px 300px at 50% 50%, rgba(201, 149, 60, 0.03), transparent);
+    radial-gradient(ellipse 400px 300px at 50% 50%, rgba(91, 141, 239, 0.03), transparent);
 }
 
 /* --- 滚动条 --- */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(201, 149, 60, 0.2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(201, 149, 60, 0.35); }
+::-webkit-scrollbar-thumb { background: rgba(91, 141, 239, 0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(91, 141, 239, 0.35); }
 
 /* --- 布局 --- */
 .app-layout {
@@ -120,7 +120,7 @@ body::after {
 .sidebar-logo .logo-icon {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, var(--accent-gold), #A07830);
+  background: linear-gradient(135deg, var(--accent), #A07830);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -179,19 +179,19 @@ body::after {
   transform: translateY(-50%);
   width: 3px;
   height: 0;
-  background: var(--accent-gold);
+  background: var(--accent);
   border-radius: 0 2px 2px 0;
   transition: height var(--transition);
 }
 
 .nav-item:hover {
   color: var(--text-primary);
-  background: var(--accent-gold-dim);
+  background: var(--accent-dim);
 }
 
 .nav-item.active {
-  color: var(--accent-gold);
-  background: var(--accent-gold-dim);
+  color: var(--accent);
+  background: var(--accent-dim);
 }
 
 .nav-item.active::before {
@@ -220,7 +220,7 @@ body::after {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-gold), var(--accent-teal));
+  background: linear-gradient(135deg, var(--accent), var(--accent-teal));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -299,8 +299,8 @@ body::after {
 }
 
 .header-search input:focus {
-  border-color: var(--accent-gold);
-  box-shadow: 0 0 0 3px rgba(201, 149, 60, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.1);
 }
 
 .header-search .search-icon {
@@ -334,8 +334,8 @@ body::after {
 }
 
 .header-btn:hover {
-  border-color: var(--accent-gold);
-  color: var(--accent-gold);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .header-btn .badge {
@@ -358,7 +358,7 @@ body::after {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-gold), #A07830);
+  background: linear-gradient(135deg, var(--accent), #A07830);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -405,7 +405,7 @@ body::after {
 
 .card:hover {
   border-color: var(--border-strong);
-  box-shadow: 0 0 20px rgba(201, 149, 60, 0.06);
+  box-shadow: 0 0 20px rgba(91, 141, 239, 0.06);
 }
 
 .card-glass {
@@ -426,9 +426,9 @@ body::after {
 }
 
 .badge-gold {
-  background: var(--accent-gold-dim);
-  color: var(--accent-gold);
-  border: 1px solid rgba(201, 149, 60, 0.3);
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid rgba(91, 141, 239, 0.3);
 }
 
 .badge-teal {
@@ -465,13 +465,13 @@ body::after {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-gold), #A07830);
+  background: linear-gradient(135deg, var(--accent), #A07830);
   color: #0E1117;
   font-weight: 600;
 }
 
 .btn-primary:hover {
-  box-shadow: 0 4px 16px rgba(201, 149, 60, 0.3);
+  box-shadow: 0 4px 16px rgba(91, 141, 239, 0.3);
   transform: translateY(-1px);
 }
 
@@ -482,8 +482,8 @@ body::after {
 }
 
 .btn-secondary:hover {
-  border-color: var(--accent-gold);
-  background: var(--accent-gold-dim);
+  border-color: var(--accent);
+  background: var(--accent-dim);
 }
 
 .btn-sm {
@@ -537,8 +537,8 @@ body::after {
 }
 
 .form-input:focus, .form-select:focus, .form-textarea:focus {
-  border-color: var(--accent-gold);
-  box-shadow: 0 0 0 3px rgba(201, 149, 60, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.1);
 }
 
 .form-textarea {
@@ -566,9 +566,9 @@ body::after {
   border-radius: 6px;
   font-size: 11px;
   font-weight: 500;
-  background: var(--accent-gold-dim);
-  color: var(--accent-gold);
-  border: 1px solid rgba(201, 149, 60, 0.2);
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid rgba(91, 141, 239, 0.2);
 }
 
 /* === 页面1：工作台 === */
@@ -596,7 +596,7 @@ body::after {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--accent-gold), transparent);
+  background: linear-gradient(90deg, var(--accent), transparent);
   opacity: 0;
   transition: opacity var(--transition);
 }
@@ -657,7 +657,7 @@ body::after {
   opacity: 0.6;
 }
 
-.stat-icon.gold { background: var(--accent-gold-dim); color: var(--accent-gold); }
+.stat-icon.gold { background: var(--accent-dim); color: var(--accent); }
 .stat-icon.teal { background: rgba(45, 212, 168, 0.1); color: var(--accent-teal); }
 
 /* 管道概览 */
@@ -750,9 +750,9 @@ body::after {
 }
 
 .pipeline-stage .stage-count.has-candidates {
-  border-color: var(--accent-gold);
-  background: var(--accent-gold-dim);
-  color: var(--accent-gold);
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  color: var(--accent);
 }
 
 /* 活动列表 + AI建议 双列 */
@@ -798,7 +798,7 @@ body::after {
 }
 
 .activity-item.type-score::before { background: var(--accent-teal); }
-.activity-item.type-interview::before { background: var(--accent-gold); }
+.activity-item.type-interview::before { background: var(--accent); }
 .activity-item.type-import::before { background: #7C6DDB; }
 .activity-item.type-decision::before { background: var(--accent-red); }
 
@@ -813,7 +813,7 @@ body::after {
 }
 
 .activity-icon.score { background: rgba(45, 212, 168, 0.1); color: var(--accent-teal); }
-.activity-icon.interview { background: var(--accent-gold-dim); color: var(--accent-gold); }
+.activity-icon.interview { background: var(--accent-dim); color: var(--accent); }
 .activity-icon.import { background: rgba(124, 109, 219, 0.1); color: #7C6DDB; }
 .activity-icon.decision { background: rgba(232, 93, 93, 0.1); color: var(--accent-red); }
 
@@ -827,7 +827,7 @@ body::after {
 }
 
 .activity-item .activity-text strong {
-  color: var(--accent-gold);
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -840,7 +840,7 @@ body::after {
 .ai-insights-card {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-strong);
-  border-left: 3px solid var(--accent-gold);
+  border-left: 3px solid var(--accent);
   border-radius: var(--radius);
   padding: 20px 24px;
 }
@@ -921,8 +921,8 @@ body::after {
 }
 
 .job-card.selected {
-  border-color: var(--accent-gold);
-  background: var(--accent-gold-dim);
+  border-color: var(--accent);
+  background: var(--accent-dim);
 }
 
 .job-card .job-main {
@@ -944,7 +944,7 @@ body::after {
 
 .job-card .job-salary {
   font-family: var(--font-mono);
-  color: var(--accent-gold);
+  color: var(--accent);
   font-weight: 500;
 }
 
@@ -1005,8 +1005,8 @@ body::after {
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
-  background: var(--accent-gold-dim);
-  color: var(--accent-gold);
+  background: var(--accent-dim);
+  color: var(--accent);
   padding: 2px 8px;
   border-radius: 10px;
 }
@@ -1028,8 +1028,8 @@ body::after {
 }
 
 .kanban-card:hover {
-  border-color: var(--accent-gold);
-  box-shadow: 0 4px 12px rgba(201, 149, 60, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(91, 141, 239, 0.1);
   transform: translateY(-2px);
 }
 
@@ -1155,22 +1155,22 @@ body::after {
 
 /* 上传区域 */
 .upload-area {
-  border: 2px dashed var(--accent-gold);
+  border: 2px dashed var(--accent);
   border-radius: var(--radius);
   padding: 48px 24px;
   text-align: center;
   margin-bottom: 24px;
-  background: var(--accent-gold-dim);
+  background: var(--accent-dim);
   transition: all var(--transition);
   display: none;
 }
 
 .upload-area.active { display: block; }
-.upload-area:hover { background: rgba(201, 149, 60, 0.1); }
+.upload-area:hover { background: rgba(91, 141, 239, 0.1); }
 
 .upload-area .upload-icon {
   margin-bottom: 16px;
-  color: var(--accent-gold);
+  color: var(--accent);
 }
 
 .upload-area p {
@@ -1201,7 +1201,7 @@ body::after {
 
 .progress-bar .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-gold), var(--accent-teal));
+  background: linear-gradient(90deg, var(--accent), var(--accent-teal));
   border-radius: 2px;
   width: 0;
   transition: width 0.1s linear;
@@ -1249,7 +1249,7 @@ body::after {
 .resume-table tbody tr:last-child { border-bottom: none; }
 
 .resume-table tbody tr:hover {
-  background: var(--accent-gold-dim);
+  background: var(--accent-dim);
 }
 
 .resume-table tbody td {
@@ -1433,7 +1433,7 @@ body::after {
 }
 
 .eval-expand-header:hover {
-  background: var(--accent-gold-dim);
+  background: var(--accent-dim);
 }
 
 .eval-expand-header .eval-dim {
@@ -1490,14 +1490,14 @@ body::after {
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
-  color: var(--accent-gold);
+  color: var(--accent);
   display: flex;
   align-items: center;
   gap: 6px;
   transition: background var(--transition);
 }
 
-.trace-header:hover { background: var(--accent-gold-dim); }
+.trace-header:hover { background: var(--accent-dim); }
 
 .trace-body {
   display: none;
@@ -1511,12 +1511,12 @@ body::after {
   padding: 10px 14px;
   background: var(--bg-secondary);
   border-radius: 6px;
-  border-left: 3px solid var(--accent-gold);
+  border-left: 3px solid var(--accent);
 }
 
 .trace-block .trace-label {
   font-size: 11px;
-  color: var(--accent-gold);
+  color: var(--accent);
   font-weight: 600;
   margin-bottom: 4px;
 }
@@ -1579,7 +1579,7 @@ body::after {
 }
 
 .interview-section-header:hover {
-  background: var(--accent-gold-dim);
+  background: var(--accent-dim);
 }
 
 .interview-section-header .section-info {
@@ -1592,8 +1592,8 @@ body::after {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--accent-gold-dim);
-  color: var(--accent-gold);
+  background: var(--accent-dim);
+  color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1662,7 +1662,7 @@ body::after {
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 600;
-  color: var(--accent-gold);
+  color: var(--accent);
   min-width: 28px;
 }
 
@@ -1704,7 +1704,7 @@ body::after {
   transition: background var(--transition);
 }
 
-.answer-level-header:hover { background: var(--accent-gold-dim); }
+.answer-level-header:hover { background: var(--accent-dim); }
 
 .answer-level.good .answer-level-header { color: var(--accent-teal); }
 .answer-level.medium .answer-level-header { color: var(--accent-amber); }
@@ -1761,7 +1761,7 @@ body::after {
 }
 
 .question-card .q-notes textarea:focus {
-  border-color: var(--accent-gold);
+  border-color: var(--accent);
 }
 
 /* 面试笔记表单 */
@@ -1808,16 +1808,16 @@ body::after {
 }
 
 .radio-label:hover {
-  border-color: var(--accent-gold);
+  border-color: var(--accent);
 }
 
 .radio-label input[type="radio"] {
-  accent-color: var(--accent-gold);
+  accent-color: var(--accent);
 }
 
 .radio-label:has(input:checked) {
-  border-color: var(--accent-gold);
-  background: var(--accent-gold-dim);
+  border-color: var(--accent);
+  background: var(--accent-dim);
 }
 
 /* === 页面5：AI评估 === */
@@ -1910,7 +1910,7 @@ body::after {
   padding: 20px;
   background: var(--bg-tertiary);
   border-radius: var(--radius);
-  border-left: 3px solid var(--accent-gold);
+  border-left: 3px solid var(--accent);
 }
 
 .eval-charts-row {
@@ -1994,7 +1994,7 @@ body::after {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--accent-gold);
+  background: var(--accent);
 }
 
 .highlights-list li strong {
@@ -2002,7 +2002,7 @@ body::after {
 }
 
 .highlights-list li .quote {
-  color: var(--accent-gold);
+  color: var(--accent);
   font-style: italic;
 }
 
@@ -2200,9 +2200,9 @@ body::after {
 }
 
 .recorder-btn:hover {
-  border-color: var(--accent-gold);
-  color: var(--accent-gold);
-  box-shadow: 0 0 24px rgba(201, 149, 60, 0.2);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 24px rgba(91, 141, 239, 0.2);
 }
 
 .recorder-btn.recording {
@@ -2218,8 +2218,8 @@ body::after {
 }
 
 .recorder-btn.processing {
-  border-color: var(--accent-gold);
-  color: var(--accent-gold);
+  border-color: var(--accent);
+  color: var(--accent);
   pointer-events: none;
 }
 
@@ -2346,13 +2346,13 @@ body::after {
 }
 
 .recorder-manual-input textarea:focus {
-  border-color: var(--accent-gold);
+  border-color: var(--accent);
 }
 
 /* 工具类 */
 .mt-0 { margin-top: 0; }
 .mb-0 { margin-bottom: 0; }
-.text-gold { color: var(--accent-gold); }
+.text-gold { color: var(--accent); }
 .text-teal { color: var(--accent-teal); }
 .text-red { color: var(--accent-red); }
 .text-amber { color: var(--accent-amber); }
@@ -2645,7 +2645,7 @@ body::after {
 
           <div class="ai-insights-card">
             <h3 class="font-heading">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2m-3.3-6.7l-1.4 1.4M6.7 17.3l-1.4 1.4m0-13.4l1.4 1.4m10.6 10.6l1.4 1.4"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2m-3.3-6.7l-1.4 1.4M6.7 17.3l-1.4 1.4m0-13.4l1.4 1.4m10.6 10.6l1.4 1.4"/></svg>
               AI 建议
             </h3>
             <div class="insight-item">
@@ -3410,23 +3410,23 @@ body::after {
               </div>
               <div class="form-group">
                 <label class="form-label">技术能力</label>
-                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent-gold);">
+                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent);">
               </div>
               <div class="form-group">
                 <label class="form-label">沟通表达</label>
-                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent-gold);">
+                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent);">
               </div>
               <div class="form-group">
                 <label class="form-label">团队协作</label>
-                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent-gold);">
+                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent);">
               </div>
               <div class="form-group">
                 <label class="form-label">文化契合</label>
-                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent-gold);">
+                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent);">
               </div>
               <div class="form-group">
                 <label class="form-label">成长潜力</label>
-                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent-gold);">
+                <input type="range" min="1" max="5" value="3" class="w-full" style="accent-color:var(--accent);">
               </div>
               <div class="form-group full-width">
                 <label class="form-label">关键语录记录</label>
@@ -3498,7 +3498,7 @@ body::after {
                   <span class="emotion-value">自信稳定</span>
                 </div>
                 <div class="emotion-item">
-                  <div class="emotion-dot" style="background:var(--accent-gold)"></div>
+                  <div class="emotion-dot" style="background:var(--accent)"></div>
                   <span class="emotion-label">动机</span>
                   <span class="emotion-value">追求技术成长</span>
                 </div>
@@ -3535,7 +3535,7 @@ body::after {
           <!-- 录用建议 -->
           <div class="eval-recommendation">
             <h3 class="font-heading">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
               录用建议
             </h3>
             <div class="rec-text">
@@ -3604,23 +3604,23 @@ body::after {
             <div class="comp-bars">
               <div class="comp-bar-item">
                 <div class="comp-bar-label"><span class="label">硬技能</span><span class="value">4.6</span></div>
-                <div class="comp-bar"><div class="comp-bar-fill" style="width:92%;background:var(--accent-gold);"></div></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:92%;background:var(--accent);"></div></div>
               </div>
               <div class="comp-bar-item">
                 <div class="comp-bar-label"><span class="label">软技能</span><span class="value">3.8</span></div>
-                <div class="comp-bar"><div class="comp-bar-fill" style="width:76%;background:var(--accent-gold);"></div></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:76%;background:var(--accent);"></div></div>
               </div>
               <div class="comp-bar-item">
                 <div class="comp-bar-label"><span class="label">文化契合</span><span class="value">3.6</span></div>
-                <div class="comp-bar"><div class="comp-bar-fill" style="width:72%;background:var(--accent-gold);"></div></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:72%;background:var(--accent);"></div></div>
               </div>
               <div class="comp-bar-item">
                 <div class="comp-bar-label"><span class="label">稳定性</span><span class="value">3.2</span></div>
-                <div class="comp-bar"><div class="comp-bar-fill" style="width:64%;background:var(--accent-gold);"></div></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:64%;background:var(--accent);"></div></div>
               </div>
               <div class="comp-bar-item">
                 <div class="comp-bar-label"><span class="label">成长潜力</span><span class="value">4.3</span></div>
-                <div class="comp-bar"><div class="comp-bar-fill" style="width:86%;background:var(--accent-gold);"></div></div>
+                <div class="comp-bar"><div class="comp-bar-fill" style="width:86%;background:var(--accent);"></div></div>
               </div>
             </div>
             <div class="comparison-notes">
@@ -3713,44 +3713,32 @@ body::after {
    ============================================ */
 
 // ===== 模拟数据 =====
-const resumes = [
-  { id:0, name:'张明', position:'前端工程师', score:4.6, t0:4.8, t1:4.2, fine:4.5, bonus:4.7, status:'已通过', phone:'138****2761', email:'zhangming@email.com', edu:'本科·浙江大学·计算机科学', years:'3 年', salary:'25K-35K',
-    skills:['React','TypeScript','Webpack','Node.js','Git'],
-    work:[
-      {company:'某互联网大厂',role:'高级前端工程师',period:'2022.03 - 至今',desc:'负责电商平台前端架构设计，带领 3 人小组完成核心交易链路重构。'},
-      {company:'某创业公司',role:'前端开发工程师',period:'2020.07 - 2022.02',desc:'独立开发 SaaS 管理后台，从 0 搭建 Vue3 + TypeScript 技术栈。'}
-    ],
-    traces:[
-      {dim:'T0 硬技能',score:4.8,quote:'3 年 React 开发经验，精通 TypeScript，独立负责过 3 个中大型项目的前端架构设计',reason:'工作年限 3 年(+1.5) + React/TS 精通(+1.8) + 独立架构设计(+1.5) = 4.8',formula:'1.5 + 1.8 + 1.5 = 4.8'},
-      {dim:'T1 软技能',score:4.2,quote:'带领 3 人小组完成核心交易链路重构，推动团队 Code Review 机制落地',reason:'团队协作(+1.5) + 技术推动力(+1.2) + 项目管理(+1.5) = 4.2',formula:'1.5 + 1.2 + 1.5 = 4.2'},
-      {dim:'精细筛选',score:4.5,quote:'浙江大学计算机科学本科，有大厂 + 创业公司双背景',reason:'学历匹配(+1.5) + 大厂背景(+1.8) + 创业经历(+1.2) = 4.5',formula:'1.5 + 1.8 + 1.2 = 4.5'},
-      {dim:'加分项',score:4.7,quote:'GitHub 开源项目 500+ star，技术博客月访问 2 万+',reason:'开源贡献(+2.0) + 技术影响力(+1.7) + 持续学习(+1.0) = 4.7',formula:'2.0 + 1.7 + 1.0 = 4.7'}
-    ]},
-  { id:1, name:'李华', position:'前端工程师', score:4.7, t0:4.6, t1:4.8, fine:4.4, bonus:4.9, status:'已通过', phone:'139****8834', email:'lihua@email.com', edu:'硕士·清华大学·软件工程', years:'4 年', salary:'28K-40K',
-    skills:['React','Vue','GraphQL','Docker','CI/CD'],
-    work:[
-      {company:'某头部科技公司',role:'前端技术专家',period:'2021.06 - 至今',desc:'负责国际化项目前端架构，搭建微前端体系，支撑 20+ 子应用。'},
-      {company:'某金融科技公司',role:'前端开发工程师',period:'2019.07 - 2021.05',desc:'开发量化交易平台前端模块，使用 WebSocket 实现实时数据展示。'}
-    ],traces:[]},
-  { id:2, name:'陈思', position:'前端工程师', score:4.8, t0:4.9, t1:4.3, fine:4.8, bonus:5.0, status:'已通过', phone:'137****5512', email:'chensi@email.com', edu:'本科·北京大学·信息工程', years:'5 年', salary:'30K-45K',
-    skills:['React','Next.js','Rust/WASM','Three.js','WebGL'],
-    work:[{company:'某知名互联网公司',role:'资深前端工程师',period:'2020.03 - 至今',desc:'主导 3D 可视化产品前端开发，将 WebGL 渲染性能提升 300%。'}],traces:[]},
-  { id:3, name:'赵强', position:'前端工程师', score:2.3, t0:2.0, t1:2.5, fine:2.2, bonus:2.4, status:'建议淘汰', phone:'136****3398', email:'zhaoqiang@email.com', edu:'大专·某职业技术学院·计算机应用', years:'2 年', salary:'12K-18K',
-    skills:['Angular','jQuery','Bootstrap','SASS'],
-    work:[{company:'某传统软件公司',role:'网页制作',period:'2022.01 - 至今',desc:'使用 jQuery 和 Bootstrap 维护企业官网和管理后台。'}],traces:[]},
-  { id:4, name:'刘洋', position:'前端工程师', score:3.9, t0:4.0, t1:3.6, fine:4.1, bonus:3.8, status:'待定', phone:'135****7723', email:'liuyang@email.com', edu:'本科·华中科技大学·软件工程', years:'3 年', salary:'20K-30K',
-    skills:['Vue','React','JavaScript','Element UI','微信小程序'],
-    work:[{company:'某中型互联网公司',role:'前端开发工程师',period:'2021.04 - 至今',desc:'负责多个 Vue3 项目开发，参与微信小程序搭建。'}],traces:[]},
-  { id:5, name:'周婷', position:'前端工程师', score:3.8, t0:3.5, t1:4.2, fine:3.8, bonus:3.9, status:'待定', phone:'133****9945', email:'zhouting@email.com', edu:'本科·武汉理工大学·数字媒体', years:'2 年', salary:'15K-22K',
-    skills:['React','Redux','CSS3','Figma','动效设计'],
-    work:[{company:'某设计驱动型公司',role:'前端开发工程师',period:'2022.06 - 至今',desc:'负责设计稿高保真还原，擅长复杂 CSS 动效和响应式布局。'}],traces:[]},
-  { id:6, name:'王芳', position:'剪辑师', score:4.2, t0:4.5, t1:4.0, fine:3.8, bonus:4.3, status:'待定', phone:'131****6654', email:'wangfang@email.com', edu:'本科·中国传媒大学·广播电视编导', years:'4 年', salary:'12K-18K',
-    skills:['Premiere Pro','After Effects','达芬奇调色','短视频策划'],
-    work:[{company:'某 MCN 机构',role:'高级剪辑师',period:'2021.01 - 至今',desc:'负责抖音千万粉丝账号视频剪辑，月产出 30+ 条高质量短视频。'}],traces:[]},
-  { id:7, name:'吴磊', position:'前端工程师', score:4.5, t0:4.6, t1:4.0, fine:4.4, bonus:4.6, status:'已通过', phone:'158****2247', email:'wulei@email.com', edu:'本科·电子科技大学·计算机科学', years:'4 年', salary:'22K-35K',
-    skills:['React','Next.js','Tailwind CSS','PostgreSQL','Vercel'],
-    work:[{company:'某 SaaS 创业公司',role:'前端负责人',period:'2020.09 - 至今',desc:'从 0 搭建 Next.js + Tailwind CSS 前端架构，带领 4 人前端团队。'}],traces:[]}
-];
+let resumes = [];
+let dbCandidates = [];
+
+function mapCandidate(c) {
+  return {
+    id: c.id, name: c.name, position: c.position, score: c.score || 0,
+    t0: c.skills?.length > 5 ? 4.8 : 4.0, t1: 4.2, fine: c.skills?.length > 4 ? 4.5 : 3.5, bonus: 4.0,
+    status: c.status === 'passed' ? '已通过' : c.status === 'interview' ? '面试中' : c.status === 'screening' ? '筛选中' : c.status === 'rejected' ? '不推荐' : '新简历',
+    phone: c.phone || '', email: c.email || '', edu: c.education || '', years: c.experience?.[0]?.period || '',
+    salary: '', skills: c.skills || [],
+    work: (c.experience || []).map(e => ({company: e.company||'', role: e.role||'', period: e.period||'', desc: e.desc||''})),
+    traces: []
+  };
+}
+
+async function loadCandidates() {
+  try {
+    const list = await apiCall('GET', '/candidates');
+    dbCandidates = list;
+    resumes = list.map(mapCandidate);
+    renderResumeTable();
+    updateDashboardStats();
+  } catch(e) {
+    console.warn('API 加载失败，使用缓存:', e.message);
+  }
+}
 
 // 页面标题映射
 const pageTitles = {
@@ -3912,7 +3900,7 @@ function openDetail(id) {
 
   const workHTML = r.work.map(w => `<div style="margin-bottom:16px;padding:12px 16px;background:var(--bg-primary);border-radius:8px;">
     <div style="font-weight:600;margin-bottom:4px;">${w.company} — ${w.role}</div>
-    <div style="font-size:12px;color:var(--accent-gold);margin-bottom:6px;">${w.period}</div>
+    <div style="font-size:12px;color:var(--accent);margin-bottom:6px;">${w.period}</div>
     <div style="font-size:13px;color:var(--text-secondary);">${w.desc}</div>
   </div>`).join('');
 
@@ -4077,7 +4065,7 @@ function drawRadarChart(idx) {
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
     ctx.closePath();
-    ctx.strokeStyle = 'rgba(201, 149, 60, 0.12)';
+    ctx.strokeStyle = 'rgba(91, 141, 239, 0.12)';
     ctx.lineWidth = 1;
     ctx.stroke();
   }
@@ -4088,7 +4076,7 @@ function drawRadarChart(idx) {
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(cx + R * Math.cos(angle), cy + R * Math.sin(angle));
-    ctx.strokeStyle = 'rgba(201, 149, 60, 0.15)';
+    ctx.strokeStyle = 'rgba(91, 141, 239, 0.15)';
     ctx.lineWidth = 1;
     ctx.stroke();
   }
@@ -4105,11 +4093,11 @@ function drawRadarChart(idx) {
   ctx.closePath();
   // 渐变填充
   const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
-  grad.addColorStop(0, 'rgba(201, 149, 60, 0.25)');
-  grad.addColorStop(1, 'rgba(201, 149, 60, 0.05)');
+  grad.addColorStop(0, 'rgba(91, 141, 239, 0.25)');
+  grad.addColorStop(1, 'rgba(91, 141, 239, 0.05)');
   ctx.fillStyle = grad;
   ctx.fill();
-  ctx.strokeStyle = 'rgba(201, 149, 60, 0.8)';
+  ctx.strokeStyle = 'rgba(91, 141, 239, 0.8)';
   ctx.lineWidth = 2;
   ctx.stroke();
 
@@ -4120,7 +4108,7 @@ function drawRadarChart(idx) {
     const y = cy + R * data[i] * Math.sin(angle);
     ctx.beginPath();
     ctx.arc(x, y, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#C9953C';
+    ctx.fillStyle = '#5B8DEF';
     ctx.fill();
     ctx.strokeStyle = '#0E1117';
     ctx.lineWidth = 2;
@@ -4313,8 +4301,8 @@ async function transcribeAudio() {
   transcribeBtn.disabled = true;
   extractBtn.style.display = 'none';
   recorderBtn.classList.add('processing');
-  transcribeBtn.innerHTML = '<div style="width:16px;height:16px;border:2px solid var(--accent-gold);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div> AI 转写中...';
-  box.innerHTML = '<span style="color:var(--accent-gold);">⏳ 音频已上传，AI 正在转写（约需 1-2 分钟）...</span>';
+  transcribeBtn.innerHTML = '<div style="width:16px;height:16px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div> AI 转写中...';
+  box.innerHTML = '<span style="color:var(--accent);">⏳ 音频已上传，AI 正在转写（约需 1-2 分钟）...</span>';
   showToast('音频上传中，AI 正在语音转文字...');
 
   try {
@@ -4376,7 +4364,7 @@ async function extractNotes() {
   const btn = document.getElementById('extractBtn');
   const recorderBtn = document.getElementById('recorderBtn');
   btn.disabled = true;
-  btn.innerHTML = '<div style="width:16px;height:16px;border:2px solid var(--accent-gold);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div> AI 提取中...';
+  btn.innerHTML = '<div style="width:16px;height:16px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div> AI 提取中...';
   recorderBtn.classList.add('processing');
   showToast('AI 正在分析面试内容...');
 
@@ -4576,8 +4564,22 @@ function renderInterviewSections(sections) {
   guide.innerHTML = html;
 }
 
+function updateDashboardStats() {
+  const list = dbCandidates.length ? dbCandidates : resumes;
+  const passed = list.filter(c => c.status === 'passed' || c.status === '已通过').length;
+  const interview = list.filter(c => c.status === 'interview' || c.status === '面试中').length;
+  const passRate = list.length ? Math.round(passed / list.length * 100) : 73;
+  document.querySelectorAll('.counter[data-target]').forEach(el => {
+    if (el.closest('.stat-card:first-child')) el.dataset.target = list.length;
+    if (el.closest('.stat-card:nth-child(2)')) el.dataset.target = interview;
+    if (el.closest('.stat-card:nth-child(3)')) el.dataset.target = passRate;
+  });
+  animateCounters();
+}
+
 // ===== 初始化 =====
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadCandidates();
   animateCounters();
   renderResumeTable();
 });
