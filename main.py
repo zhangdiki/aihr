@@ -10,11 +10,11 @@ from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Depends, Hea
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from dotenv import load_dotenv
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import init_db, get_db, Candidate, Interview, Resume, User, Notification
-from services.baidu_asr import BaiduASR
+from database import init_db, get_db, Candidate, Interview, Resume, User, Notification, Job, Setting, DEFAULT_SETTINGS
+from services.baidu_asr import BaiduASR, ASRError
 from services.ai_service import AIService
 from services.resume_parser import extract_text, parse_resume_with_ai
 
@@ -222,17 +222,21 @@ async def unread_count(user = Depends(_get_current_user), db = Depends(get_db)):
 
 HELP_ARTICLES = [
     {"id": 1, "title": "快速开始", "icon": "rocket",
-     "content": "AIHR 是一个 AI 驱动的智能招聘助手。核心功能：上传简历自动解析、录音转文字、AI 面试笔记提取、智能面试题生成。\n\n## 三步上手\n1. 上传候选人简历（PDF/Word）→ 系统自动解析并创建档案\n2. 面试时打开录音 → 语音自动转文字\n3. AI 提取面试笔记 → 自动评分和录用建议"},
+     "content": "AIHR 是一个 AI 驱动的智能招聘助手，帮助 HR 完成从简历筛选到面试评估的全流程工作。\n\n核心功能：简历解析、语音转写、AI 面试笔记提取、面试题生成、岗位管理。\n\n三步上手：\n1. 创建岗位 - 填写岗位名称，点击 AI 生成 JD 自动生成职位描述\n2. 上传简历 - 选择对应岗位，拖拽上传 PDF/Word\n3. 面试评估 - 选择候选人，录音或粘贴文本，AI 自动提取面试笔记\n\n技术栈：Python FastAPI + SQLAlchemy + SQLite\nAI 引擎：DeepSeek + 百度 ASR\n前端：单页面 HTML，零框架依赖"},
     {"id": 2, "title": "简历上传与解析", "icon": "file",
-     "content": "支持 PDF、Word（.docx）、TXT 格式。AI 会自动提取：姓名、联系方式、技能列表、工作经历、教育背景。\n\n上传后自动创建候选人档案，AI 评分和技能标签自动填充。"},
+     "content": "支持格式：PDF（推荐）、Word (.docx/.doc)、TXT\n\n上传方式：\n1. 进入简历管理页面，展开上传区域\n2. 选择对应岗位（建议）\n3. 拖拽文件或点击选择\n4. 等待进度条完成，系统自动解析并创建候选人\n\nAI 自动提取：姓名、联系方式、学历、技能标签、工作经历\n\n注意：文件建议 5MB 以内，解析需 3-10 秒，可手动编辑解析结果"},
     {"id": 3, "title": "面试语音转写", "icon": "mic",
-     "content": "面试时点击录音按钮，系统通过百度语音识别将对话实时转为文字。录音结束后自动保存，可用于后续 AI 分析。\n\n支持粘贴已有转写文本作为备用方案。"},
+     "content": "录音转写：\n1. 进入面试管理页面，选择候选人\n2. 点击麦克风按钮开始录音\n3. 点击停止 - 音频自动上传并转写\n4. 转写结果可编辑\n\n粘贴转写（备选）：\n若录音不可用（需 HTTPS），可粘贴已有文本\n\n长音频支持：\n- 55秒以内直接识别\n- 超过55秒自动切片后逐片识别拼接\n- 最多支持约30分钟\n\n格式：WebM/WAV/MP3，需麦克风权限"},
     {"id": 4, "title": "AI 面试笔记", "icon": "brain",
-     "content": "基于转写文本，AI 从 6 个维度分析候选人：技术能力、沟通表达、项目经验、团队协作、学习能力、文化契合。每个维度给出 1-5 分评分和具体评价。同时提取关键语录和录用建议。"},
+     "content": "基于转写文本，DeepSeek AI 从 6 个维度评估：\n技术能力、沟通表达、项目经验、团队协作、学习能力、文化契合\n\n操作：\n1. 完成转写\n2. 点击 AI 提取面试重点（5-15秒）\n3. 系统填充 6 维度评价和打分\n4. 手动调整后点击保存\n\n保存后自动：计算平均分、更新候选人状态"},
     {"id": 5, "title": "AI 面试题生成", "icon": "list",
-     "content": "根据候选人简历自动生成个性化面试题，覆盖 5 大板块：自我介绍与动机、技术深度、项目经验深挖、软技能与团队协作、文化契合。每题含优/中/差三档答题标准。"},
+     "content": "根据候选人简历自动生成个性化面试题。\n\n两个入口：\n- 候选人详情面板点击生成面试题\n- 面试管理页面选择候选人后点击生成\n\n5 个板块：自我介绍与动机、技术深度、项目经验深挖、软技能与团队协作、文化契合\n\n每题含 3 档答题标准：优秀/中等/较差\n\n生成需 5-15 秒，按钮显示加载状态"},
     {"id": 6, "title": "候选人管理", "icon": "users",
-     "content": "所有候选人按状态分类：新简历、筛选中、面试中、已通过、不推荐。点击候选人查看详情，包括 AI 评分、工作经历、面试记录。"},
+     "content": "5 个状态：新简历、筛选中、面试中、已通过、不推荐\n\n操作：\n- 点击行查看详情（技能、工作经历、面试记录）\n- 标记状态（通过/淘汰/面试中）\n- 使用岗位和评分筛选\n\nAI 评估报告：综合评分、六维雷达图、技能标签、关键语录"},
+    {"id": 7, "title": "岗位管理", "icon": "rocket",
+     "content": "创建岗位：\n1. 进入岗位管理页面，点击新建\n2. 填写名称、部门、薪资、紧急程度\n3. 点击 AI 生成 JD（可手动修改）\n4. 点击创建\n\nPipeline 看板展示各岗位招聘进度，5 个阶段候选人数量一目了然"},
+    {"id": 8, "title": "常见问题 FAQ", "icon": "users",
+     "content": "Q: 录音不能用？\n需 HTTPS 或 localhost 环境。用 http://localhost:8000 访问，或用手机录音+粘贴。\n\nQ: AI 分析慢？\nDeepSeek API 需 5-15 秒，取决于文本长度。耐心等待。\n\nQ: 简历解析不准？\nPDF 效果最好，扫描版无法解析。可手动编辑。\n\nQ: 数据在哪？\n存储在 data.db SQLite 文件，建议定期备份。\n\nQ: 如何部署？\n有 Dockerfile，可部署到 Zeabur/Railway 或任何云服务器。"},
 ]
 
 
@@ -247,6 +251,41 @@ async def get_help_article(article_id: int):
         if a["id"] == article_id:
             return a
     raise HTTPException(404, "文章不存在")
+
+
+# ============================================================
+# 系统设置
+# ============================================================
+
+@app.get("/api/settings")
+async def get_settings(db: AsyncSession = Depends(get_db)):
+    """获取所有系统设置"""
+    result = await db.execute(select(Setting))
+    rows = result.scalars().all()
+    settings = {}
+    for row in rows:
+        settings[row.key] = row.value
+    # 补全缺失的默认值
+    for k, v in DEFAULT_SETTINGS.items():
+        if k not in settings:
+            settings[k] = v
+    return settings
+
+
+@app.put("/api/settings")
+async def update_settings(data: dict, db: AsyncSession = Depends(get_db)):
+    """批量更新系统设置"""
+    for key, value in data.items():
+        if key not in DEFAULT_SETTINGS:
+            continue  # 忽略未知的 key
+        result = await db.execute(select(Setting).where(Setting.key == key))
+        row = result.scalar_one_or_none()
+        if row:
+            row.value = value
+        else:
+            db.add(Setting(key=key, value=value))
+    await db.commit()
+    return {"ok": True}
 
 
 # ============================================================
@@ -303,6 +342,115 @@ async def create_candidate(data: dict, db: AsyncSession = Depends(get_db)):
 
 
 # ============================================================
+# 岗位 CRUD
+# ============================================================
+
+@app.get("/api/jobs")
+async def list_jobs(db: AsyncSession = Depends(get_db)):
+    """岗位列表"""
+    result = await db.execute(select(Job).order_by(Job.created_at.desc()))
+    jobs = result.scalars().all()
+
+    # 统计每个岗位的候选人数量（按状态分组）
+    data = []
+    for j in jobs:
+        count_result = await db.execute(
+            select(func.count()).select_from(Candidate).where(Candidate.job_id == j.id)
+        )
+        total = count_result.scalar()
+        # 按状态统计
+        stage_counts = {}
+        for status in ("new", "screening", "interview", "passed", "rejected"):
+            r = await db.execute(
+                select(func.count()).select_from(Candidate)
+                .where(Candidate.job_id == j.id, Candidate.status == status)
+            )
+            stage_counts[status] = r.scalar()
+
+        data.append({
+            "id": j.id,
+            "title": j.title,
+            "department": j.department,
+            "salary_min": j.salary_min,
+            "salary_max": j.salary_max,
+            "urgency": j.urgency,
+            "description": j.description,
+            "status": j.status,
+            "total_candidates": total,
+            "stage_counts": stage_counts,
+            "created_at": j.created_at.isoformat() if j.created_at else None,
+        })
+
+    return data
+
+
+@app.post("/api/jobs")
+async def create_job(data: dict, db: AsyncSession = Depends(get_db)):
+    """创建岗位"""
+    job = Job(
+        title=data.get("title", ""),
+        department=data.get("department", ""),
+        salary_min=str(data.get("salary_min", "")),
+        salary_max=str(data.get("salary_max", "")),
+        urgency=data.get("urgency", "一般"),
+        description=data.get("description", ""),
+    )
+    db.add(job)
+    await db.commit()
+    await db.refresh(job)
+    return {
+        "id": job.id,
+        "title": job.title,
+        "department": job.department,
+        "salary_min": job.salary_min,
+        "salary_max": job.salary_max,
+        "urgency": job.urgency,
+        "status": job.status,
+    }
+
+
+@app.patch("/api/jobs/{job_id}")
+async def update_job(job_id: int, data: dict, db: AsyncSession = Depends(get_db)):
+    """更新岗位"""
+    result = await db.execute(select(Job).where(Job.id == job_id))
+    job = result.scalar_one_or_none()
+    if not job:
+        raise HTTPException(404, "岗位不存在")
+    for field in ("title", "department", "salary_min", "salary_max", "urgency", "description", "status"):
+        if field in data:
+            setattr(job, field, data[field])
+    await db.commit()
+    return {"ok": True}
+
+
+@app.delete("/api/jobs/{job_id}")
+async def delete_job(job_id: int, db: AsyncSession = Depends(get_db)):
+    """删除岗位"""
+    result = await db.execute(select(Job).where(Job.id == job_id))
+    job = result.scalar_one_or_none()
+    if not job:
+        raise HTTPException(404, "岗位不存在")
+    await db.delete(job)
+    await db.commit()
+    return {"ok": True}
+
+
+@app.post("/api/jobs/generate-jd")
+async def generate_jd(data: dict):
+    """AI 生成岗位描述"""
+    title = data.get("title", "").strip()
+    if not title:
+        raise HTTPException(400, "岗位名称不能为空")
+    jd = await ai_service.generate_jd(
+        title=title,
+        department=data.get("department", ""),
+        salary_min=data.get("salary_min", ""),
+        salary_max=data.get("salary_max", ""),
+    )
+    return {"jd": jd}
+
+
+# ============================================================
 # 语音转写
 # ============================================================
 
@@ -312,23 +460,27 @@ async def transcribe_interview(
     candidate_id: int = Form(None),
     db: AsyncSession = Depends(get_db),
 ):
-    """上传录音 → 百度 ASR → 保存转写 → 返回文本"""
+    """上传录音 → 百度 ASR（自动处理短/长音频） → 保存转写 → 返回文本"""
     if baidu_asr is None:
         raise HTTPException(503, "百度 ASR 未配置")
 
     if not file.filename:
         raise HTTPException(400, "无效的文件")
 
-    print(f"[ASR] 收到录音: {file.filename}")
-
-    # 保存临时文件
     suffix = Path(file.filename).suffix or ".webm"
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
         content = await file.read()
         tmp.write(content)
         tmp_path = tmp.name
 
-    file_size = len(content)
+    file_size_kb = round(len(content) / 1024, 1)
+    duration = baidu_asr._get_duration(tmp_path)
+    print(f"[ASR] 收到录音: {file.filename}, {file_size_kb}KB, {duration:.1f}s")
+
+    # 保存原始录音用于调试
+    import shutil
+    shutil.copy2(tmp_path, Path(__file__).parent / "static" / "_debug_raw" + suffix)
+    print(f"[ASR] 原始录音已保存: _debug_raw{suffix}")
 
     try:
         text = await baidu_asr.transcribe(tmp_path)
@@ -346,8 +498,13 @@ async def transcribe_interview(
         return {
             "id": interview.id,
             "text": text,
-            "file_size_kb": round(file_size / 1024, 1),
+            "duration_s": round(duration, 1),
+            "file_size_kb": file_size_kb,
+            "chunked": duration > 55,
         }
+    except ASRError as e:
+        print(f"[ASR] 业务错误: {e}")
+        raise HTTPException(500, f"语音识别失败 ({e.err_no}): {e.err_msg}")
     except Exception as e:
         print(f"[ASR] 转写失败: {e}")
         raise HTTPException(500, f"语音转写失败: {str(e)}")
@@ -382,7 +539,14 @@ async def extract_interview_notes(
         raise HTTPException(400, "转写文本过短（至少20字）")
 
     try:
-        notes = await ai_service.extract_notes(transcript, candidate_name, position)
+        # 从设置中读取评分维度
+        dims = None
+        result = await db.execute(select(Setting).where(Setting.key == "dimensions"))
+        dim_row = result.scalar_one_or_none()
+        if dim_row and dim_row.value:
+            dims = [d["name"] for d in dim_row.value]
+
+        notes = await ai_service.extract_notes(transcript, candidate_name, position, dimensions=dims)
 
         # 保存到数据库
         if interview_id:
@@ -408,6 +572,7 @@ async def extract_interview_notes(
 @app.post("/api/resumes/upload")
 async def upload_resume(
     file: UploadFile = File(...),
+    job_id: int = Form(None),
     db: AsyncSession = Depends(get_db),
 ):
     """上传简历 → 提取文本 → AI 结构化 → 创建候选人 → 返回结构化数据"""
@@ -455,6 +620,7 @@ async def upload_resume(
             skills=parsed.get("skills", []),
             experience=parsed.get("experience", []),
             resume_text=raw_text,
+            job_id=job_id if job_id else None,
         )
         db.add(candidate)
         await db.commit()
@@ -609,3 +775,97 @@ async def get_interview(interview_id: int, db: AsyncSession = Depends(get_db)):
         "audio_filename": i.audio_filename,
         "created_at": i.created_at.isoformat() if i.created_at else None,
     }
+
+
+@app.put("/api/interviews/{interview_id}/notes")
+async def save_interview_notes(
+    interview_id: int,
+    data: dict,
+    db: AsyncSession = Depends(get_db),
+):
+    """保存面试笔记（评分 + 评价 + 录用倾向）"""
+    result = await db.execute(select(Interview).where(Interview.id == interview_id))
+    interview = result.scalar_one_or_none()
+    if not interview:
+        raise HTTPException(404, "面试记录不存在")
+
+    notes = interview.notes or {}
+    notes.update({
+        "overall_impression": data.get("overall_impression", ""),
+        "section_notes": data.get("section_notes", []),
+        "key_quotes": data.get("key_quotes", []),
+        "tendency": data.get("tendency", ""),
+        "tags": data.get("tags", []),
+    })
+    interview.notes = notes
+    await db.commit()
+
+    # 同步更新候选人状态和评分
+    if interview.candidate_id:
+        result = await db.execute(select(Candidate).where(Candidate.id == interview.candidate_id))
+        candidate = result.scalar_one_or_none()
+        if candidate:
+            scores = [s.get("score", 0) for s in notes.get("section_notes", []) if s.get("score")]
+            if scores:
+                candidate.score = round(sum(scores) / len(scores), 1)
+            tendency = notes.get("tendency", "")
+            # 从设置中读取倾向→状态映射
+            status_map = {}
+            map_result = await db.execute(select(Setting).where(Setting.key == "tendency_map"))
+            map_row = map_result.scalar_one_or_none()
+            if map_row and map_row.value:
+                for item in map_row.value:
+                    status_map[item.get("label", "")] = item.get("targetStatus", "")
+            if not status_map:
+                status_map = {"强烈推荐": "passed", "推荐": "passed", "保留": "interview", "不推荐": "rejected"}
+            if tendency in status_map:
+                candidate.status = status_map[tendency]
+            await db.commit()
+
+    return {"ok": True, "id": interview_id}
+
+
+@app.patch("/api/candidates/{candidate_id}")
+async def update_candidate(
+    candidate_id: int,
+    data: dict,
+    db: AsyncSession = Depends(get_db),
+):
+    """更新候选人信息（状态、评分等）"""
+    result = await db.execute(select(Candidate).where(Candidate.id == candidate_id))
+    c = result.scalar_one_or_none()
+    if not c:
+        raise HTTPException(404, "候选人不存在")
+
+    for field in ("status", "position", "email", "phone", "education"):
+        if field in data:
+            setattr(c, field, data[field])
+    if "skills" in data:
+        c.skills = data["skills"]
+    if "score" in data:
+        c.score = data["score"]
+    if "experience" in data:
+        c.experience = data["experience"]
+
+    await db.commit()
+    await db.refresh(c)
+    return candidate_to_dict(c)
+
+
+@app.get("/api/candidates/{candidate_id}/interviews")
+async def get_candidate_interviews(candidate_id: int, db: AsyncSession = Depends(get_db)):
+    """获取候选人的所有面试记录"""
+    result = await db.execute(
+        select(Interview)
+        .where(Interview.candidate_id == candidate_id)
+        .order_by(Interview.created_at.desc())
+    )
+    interviews = result.scalars().all()
+    return [{
+        "id": i.id,
+        "transcript_preview": (i.transcript or "")[:200],
+        "has_notes": bool(i.notes),
+        "has_questions": bool(i.questions),
+        "notes": i.notes,
+        "created_at": i.created_at.isoformat() if i.created_at else None,
+    } for i in interviews]

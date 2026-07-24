@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM docker.m.daocloud.io/library/python:3.11-slim
 
 WORKDIR /app
 
@@ -18,5 +18,8 @@ ENV DATABASE_PATH=/app/data/data.db
 RUN mkdir -p /app/data
 
 EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${PORT:-8000}/api/health')" || exit 1
 
 CMD exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}

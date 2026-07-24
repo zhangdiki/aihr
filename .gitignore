@@ -8,3 +8,6 @@ data.db
 *.opus
 test_tone.*
 test_asr_debug.py
+*.wav
+*.bat
+*.sh

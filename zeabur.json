@@ -1,0 +1,10 @@
+{
+  "name": "aihr",
+  "type": "docker",
+  "build": {
+    "dockerfile": "./Dockerfile"
+  },
+  "env": {
+    "DATABASE_PATH": "/app/data/data.db"
+  }
+}

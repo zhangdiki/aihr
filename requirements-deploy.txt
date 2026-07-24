@@ -1,0 +1,10 @@
+# AIHR 一键部署依赖
+# pip install -r requirements-deploy.txt
+
+alibabacloud_tea_openapi>=0.3.0
+alibabacloud_cr20181201>=1.0.0
+alibabacloud_vpc20160428>=1.0.0
+alibabacloud_nas20170626>=1.0.0
+alibabacloud_fc_open20210406>=1.0.0
+alibabacloud_sts20150401>=1.0.0
+python-dotenv>=1.0.0
